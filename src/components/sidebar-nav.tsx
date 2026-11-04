@@ -1,21 +1,21 @@
 "use client";
 
-import { FolderKanban, House } from "lucide-react";
+import { FolderKanban, House, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const LINKS = [
-  { href: "/home", label: "Home", icon: House },
-  { href: "/projects", label: "Projects", icon: FolderKanban },
-];
-
-export function SidebarNav() {
+export function SidebarNav({ showOverview }: { showOverview: boolean }) {
   const pathname = usePathname();
+  const links = [
+    { href: "/home", label: "Home", icon: House },
+    ...(showOverview ? [{ href: "/overview", label: "Overview", icon: LayoutGrid }] : []),
+    { href: "/projects", label: "Projects", icon: FolderKanban },
+  ];
   return (
     <nav aria-label="Main">
-      <ul className="flex gap-1 lg:flex-col">
-        {LINKS.map(({ href, label, icon: Icon }) => {
+      <ul className="flex flex-wrap gap-1 lg:flex-col">
+        {links.map(({ href, label, icon: Icon }) => {
           const current = pathname === href || pathname.startsWith(`${href}/`);
           return (
             <li key={href}>

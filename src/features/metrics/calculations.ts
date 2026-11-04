@@ -68,7 +68,9 @@ export function computeReadiness(input: {
   const reasons: string[] = [];
   if (overdueHigh > 0) reasons.push(`${plural(overdueHigh, "overdue high-priority task")}`);
   if (overdueMilestones > 0) reasons.push(`${plural(overdueMilestones, "overdue milestone")}`);
-  if (overdue.length > overdueHigh) reasons.push(`${plural(overdue.length - overdueHigh, "other overdue task")}`);
+  if (overdue.length > overdueHigh) {
+    reasons.push(plural(overdue.length - overdueHigh, overdueHigh > 0 ? "other overdue task" : "overdue task"));
+  }
   if (pointsBehind >= AT_RISK_POINTS) reasons.push(`${Math.round(pointsBehind)} points behind schedule`);
 
   let status: ReadinessStatus = "ON_TRACK";

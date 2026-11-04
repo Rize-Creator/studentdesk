@@ -3,10 +3,11 @@ import { SignOutButton } from "@/components/sign-out-button";
 import { Wordmark } from "@/components/wordmark";
 import type { SessionUser } from "@/features/auth/session";
 import { isDemoMode } from "@/features/lms";
+import { prisma } from "@/lib/db";
 
 const DEMO_LABEL = "Demo mode: sample data";
 
-export function AppShell({
+export async function AppShell({
   user,
   panel,
   children,
@@ -16,6 +17,10 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const demo = isDemoMode();
+  // The Overview page only helps people who advise or lead an active project.
+  const overviewProjects = await prisma.projectMember.count({
+    where: { userId: user.id, role: { in: ["ADVISER", "LEAD"] }, project: { status: "ACTIVE" } },
+  });
   return (
     <div className="flex min-h-svh flex-1 flex-col bg-navy text-white lg:flex-row">
       <aside className="flex shrink-0 flex-col gap-6 px-4 py-4 sm:px-6 lg:sticky lg:top-0 lg:h-svh lg:w-80 lg:overflow-y-auto lg:py-6">
@@ -26,7 +31,7 @@ export function AppShell({
             <SignOutButton />
           </div>
         </div>
-        <SidebarNav />
+        <SidebarNav showOverview={overviewProjects > 0} />
         {panel}
         <div className="mt-auto hidden flex-col gap-2 border-t border-white/15 pt-4 lg:flex">
           {demo && <span className="text-xs text-white/75">{DEMO_LABEL}</span>}

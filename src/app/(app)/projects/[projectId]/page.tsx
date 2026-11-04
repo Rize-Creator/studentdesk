@@ -1,15 +1,10 @@
 import { requireMember } from "@/features/auth/session";
-import { formatManilaDate } from "@/lib/dates";
+import { ProjectDashboardView } from "@/features/metrics/project-dashboard";
+import { getProjectDashboard } from "@/features/metrics/queries";
 
 export default async function ProjectOverviewPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const { project } = await requireMember(projectId);
-  return (
-    <main className="flex max-w-2xl flex-col gap-2">
-      {project.description && <p>{project.description}</p>}
-      <p className="text-muted-foreground">
-        {formatManilaDate(project.startDate)} to {formatManilaDate(project.targetDate)}
-      </p>
-    </main>
-  );
+  const { user, member } = await requireMember(projectId);
+  const initial = await getProjectDashboard(projectId);
+  return <ProjectDashboardView projectId={projectId} initial={initial} viewerId={user.id} role={member.role} />;
 }

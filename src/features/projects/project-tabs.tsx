@@ -17,7 +17,7 @@ export function ProjectTabs({
   const pathname = usePathname();
   const base = `/projects/${projectId}`;
   const tabs = [
-    { href: base, label: "Overview", icon: LayoutDashboard },
+    { href: base, label: "Dashboard", icon: LayoutDashboard },
     { href: `${base}/board`, label: "Board", icon: Columns3 },
     { href: `${base}/tasks`, label: "Tasks", icon: ListChecks },
     { href: `${base}/timeline`, label: "Timeline", icon: CalendarRange },

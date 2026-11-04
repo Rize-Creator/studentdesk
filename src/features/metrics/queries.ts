@@ -8,6 +8,7 @@ import {
   isMilestoneOverdue,
   isOverdue,
   progressOverTime,
+  sortByReadiness,
 } from "./calculations";
 
 const ACTIVE = ["TODO", "IN_PROGRESS", "REVIEW"];
@@ -178,7 +179,7 @@ export async function getOverview(userId: string, now = new Date()) {
       };
     }),
   );
-  return { projects: rows };
+  return { projects: sortByReadiness(rows) };
 }
 
 export type Overview = Awaited<ReturnType<typeof getOverview>>;

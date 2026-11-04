@@ -50,6 +50,20 @@ describe("computeReadiness", () => {
     expect(readiness(list).status).toBe("AT_RISK");
   });
 
+  it("words overdue tasks plainly when none are high priority", () => {
+    const list: MetricTask[] = [...tasks(9, 0), { status: "TODO", priority: "MEDIUM", deadline: past }];
+    expect(readiness(list).reasons).toEqual(["1 overdue task"]);
+  });
+
+  it("says other overdue tasks only alongside high-priority ones", () => {
+    const list: MetricTask[] = [
+      ...tasks(9, 0),
+      { status: "TODO", priority: "HIGH", deadline: past },
+      { status: "TODO", priority: "LOW", deadline: past },
+    ];
+    expect(readiness(list).reasons).toEqual(["1 overdue high-priority task", "1 other overdue task"]);
+  });
+
   it("is behind with an overdue high-priority task, even when ahead of schedule", () => {
     const list: MetricTask[] = [...tasks(9, 0), { status: "TODO", priority: "HIGH", deadline: past }];
     const result = readiness(list);
