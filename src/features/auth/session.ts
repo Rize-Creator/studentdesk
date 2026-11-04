@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
-import { connection } from "next/server";
 import { authOptions } from "@/features/auth/options";
 import { can, type ProjectAction } from "@/lib/permissions";
 import { prisma } from "@/lib/db";
@@ -8,8 +7,6 @@ import { prisma } from "@/lib/db";
 export type SessionUser = { id: string; name: string; email: string };
 
 export async function getSessionUser(): Promise<SessionUser | null> {
-  // Sessions are per request, and next-auth generates a token that can't be prerendered.
-  await connection();
   const session = await getServerSession(authOptions);
   return session?.user ?? null;
 }
