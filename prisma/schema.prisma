@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProjectType {
+  EVENT
+  ACADEMIC
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum ProjectRole {
+  LEAD
+  MEMBER
+  ADVISER
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_IN_REVIEW
+  TASK_RETURNED
+  TASK_DONE
+  MILESTONE_COMPLETED
+  DEADLINE_REMINDER
+  TASK_OVERDUE
+  READINESS_SUMMARY
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model User {
+  id          String    @id @default(cuid())
+  lmsId       String    @unique
+  email       String    @unique
+  name        String
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  memberships     ProjectMember[]
+  projectsCreated Project[]           @relation("ProjectCreator")
+  assignedTasks   Task[]              @relation("TaskAssignee")
+  createdTasks    Task[]              @relation("TaskCreator")
+  statusChanges   TaskStatusHistory[]
+  assignments     TaskAssignment[]    @relation("AssignmentAssignee")
+  assignmentsMade TaskAssignment[]    @relation("AssignmentAssigner")
+  notifications   Notification[]
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String        @default("")
+  type        ProjectType
+  startDate   DateTime
+  targetDate  DateTime
+  status      ProjectStatus @default(ACTIVE)
+  createdById String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  createdBy     User            @relation("ProjectCreator", fields: [createdById], references: [id])
+  members       ProjectMember[]
+  milestones    Milestone[]
+  tasks         Task[]
+  notifications Notification[]
+}
+
+model ProjectMember {
+  id                  String      @id @default(cuid())
+  projectId           String
+  userId              String
+  role                ProjectRole
+  committeeCategoryId String?
+  committeeTitle      String?
+  joinedAt            DateTime    @default(now())
+
+  project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id])
+  committeeCategory Category? @relation(fields: [committeeCategoryId], references: [id])
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+model Category {
+  id   String @id @default(cuid())
+  name String @unique
+
+  tasks   Task[]
+  members ProjectMember[]
+}
+
+model Milestone {
+  id          String    @id @default(cuid())
+  projectId   String
+  title       String
+  dueDate     DateTime
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+
+  @@index([projectId, dueDate])
+}
+
+model Task {
+  id              String       @id @default(cuid())
+  projectId       String
+  title           String
+  description     String       @default("")
+  categoryId      String
+  priority        TaskPriority @default(MEDIUM)
+  status          TaskStatus   @default(BACKLOG)
+  position        Float        @default(0)
+  assigneeId      String?
+  milestoneId     String?
+  deadline        DateTime
+  deliverableUrl  String?
+  deliverableNote String?
+  completedAt     DateTime?
+  createdById     String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  project       Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  category      Category            @relation(fields: [categoryId], references: [id])
+  assignee      User?               @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  milestone     Milestone?          @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  createdBy     User                @relation("TaskCreator", fields: [createdById], references: [id])
+  history       TaskStatusHistory[]
+  assignments   TaskAssignment[]
+  notifications Notification[]
+
+  @@index([projectId, status])
+  @@index([assigneeId, status])
+  @@index([deadline])
+}
+
+model TaskStatusHistory {
+  id          String      @id @default(cuid())
+  taskId      String
+  fromStatus  TaskStatus?
+  toStatus    TaskStatus
+  changedById String
+  note        String?
+  changedAt   DateTime    @default(now())
+
+  task      Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  changedBy User @relation(fields: [changedById], references: [id])
+
+  @@index([taskId, changedAt])
+}
+
+model TaskAssignment {
+  id              String   @id @default(cuid())
+  taskId          String
+  assigneeId      String
+  assignedById    String
+  recommendedRank Int?
+  assignedAt      DateTime @default(now())
+
+  task       Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  assignee   User @relation("AssignmentAssignee", fields: [assigneeId], references: [id])
+  assignedBy User @relation("AssignmentAssigner", fields: [assignedById], references: [id])
+
+  @@index([taskId])
+}
+
+model Notification {
+  id          String             @id @default(cuid())
+  recipientId String
+  projectId   String?
+  taskId      String?
+  type        NotificationType
+  subject     String
+  body        String
+  dedupeKey   String             @unique
+  status      NotificationStatus @default(PENDING)
+  attempts    Int                @default(0)
+  sentAt      DateTime?
+  lastError   String?
+  createdAt   DateTime           @default(now())
+
+  recipient User     @relation(fields: [recipientId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([status, attempts])
+}
