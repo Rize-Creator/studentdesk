@@ -5,11 +5,13 @@ import { can } from "@/lib/permissions";
 
 export default async function MembersPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const { member, project } = await requireMember(projectId);
+  const { user, member, project } = await requireMember(projectId);
   const [members, categories] = await Promise.all([listMembers(projectId), listCategories()]);
   return (
     <MembersManager
       projectId={projectId}
+      viewerId={user.id}
+      viewerRole={member.role}
       canManage={can(member.role, "members:manage") && project.status === "ACTIVE"}
       categories={categories.map(({ id, name }) => ({ id, name }))}
       members={members.map((row) => ({

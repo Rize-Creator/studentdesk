@@ -6,6 +6,7 @@ import { Field, selectClass } from "@/components/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { SuggestionPanel, useSuggestions } from "@/features/recommendations/suggestion-panel";
 import { createTask, updateTask } from "@/features/tasks/actions";
 import { safeCall } from "@/lib/action-result";
 import { manilaDateKey } from "@/lib/dates";
@@ -46,13 +47,16 @@ export function TaskForm({
   });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [pending, setPending] = useState(false);
+  const suggestions = useSuggestions(projectId, values.categoryId);
   const set = (patch: Partial<typeof values>) => setValues((current) => ({ ...current, ...patch }));
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setPending(true);
     setErrors({});
-    const input = { ...values };
+    // Any pick in the top 3 counts as following a suggestion, however the lead picked it.
+    const recommendedRank = suggestions.data?.suggestions.find((person) => person.userId === values.assigneeId)?.rank ?? null;
+    const input = { ...values, recommendedRank };
     const result = await safeCall<unknown>(() => (task ? updateTask(projectId, task.id, input) : createTask(projectId, input)));
     setPending(false);
     if (!result.ok) {
@@ -100,6 +104,13 @@ export function TaskForm({
           </select>
         </Field>
       </div>
+      <SuggestionPanel
+        projectId={projectId}
+        categoryId={values.categoryId}
+        selectedUserId={values.assigneeId}
+        query={suggestions}
+        onPick={(userId) => set({ assigneeId: userId })}
+      />
       <Field id="task-assignee" label="Assignee" errors={errors.assigneeId}>
         <select id="task-assignee" className={selectClass} value={values.assigneeId} onChange={(e) => set({ assigneeId: e.target.value })}>
           <option value="">Unassigned</option>

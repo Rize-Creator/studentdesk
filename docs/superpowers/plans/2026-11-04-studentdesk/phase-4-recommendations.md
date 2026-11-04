@@ -465,7 +465,7 @@ A `"use server"` file can only export async functions at runtime. The `Suggestio
 - [ ] **Step 7: Check against the sample data**
 
 Create a scratch script outside `src` and run it, printing the Foundation Day 2026 suggestions for Logistics and Creatives:
-- **Logistics:** Carlo Bautista should rank first at about 82%, and Juan Dela Cruz second at about 69%.
+- **Logistics:** Carlo Bautista should rank first at about 76%, and Juan Dela Cruz second at about 69%.
 - **Creatives:** Paolo Garcia has the most Creatives history, but has 5 active tasks. He should be missing from the top 3 and listed in `atLimit`.
 
 If the numbers look wrong, check them by hand against the formula in the spec before changing anything. Delete the script afterward.

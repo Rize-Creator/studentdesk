@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { addMember, findPeople, removeMember, updateMember } from "@/features/projects/members";
 import { safeCall } from "@/lib/action-result";
-import { ROLE_LABELS, type ProjectRole } from "@/lib/permissions";
+import { canViewHistory, ROLE_LABELS, type ProjectRole } from "@/lib/permissions";
 
 export type MemberRow = {
   userId: string;
@@ -155,11 +155,15 @@ export function MembersManager({
   members,
   categories,
   canManage,
+  viewerId,
+  viewerRole,
 }: {
   projectId: string;
   members: MemberRow[];
   categories: Category[];
   canManage: boolean;
+  viewerId: string;
+  viewerRole: ProjectRole;
 }) {
   return (
     <main className="flex flex-col gap-8">
@@ -192,7 +196,13 @@ export function MembersManager({
           <TableBody>
             {members.map((member) => (
               <TableRow key={member.userId}>
-                <TableCell className="font-bold">{member.name}</TableCell>
+                <TableCell className="font-bold">
+                  {canViewHistory(viewerRole, viewerId, member.userId) ? (
+                    <Link href={`/projects/${projectId}/members/${member.userId}`} className="underline-offset-4 hover:underline">{member.name}</Link>
+                  ) : (
+                    member.name
+                  )}
+                </TableCell>
                 <TableCell>{ROLE_LABELS[member.role]}</TableCell>
                 <TableCell>{member.committeeTitle ?? member.committeeCategoryName ?? "None"}</TableCell>
               </TableRow>

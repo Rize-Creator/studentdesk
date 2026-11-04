@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { can, type ProjectAction } from "./permissions";
+import { can, canViewHistory, type ProjectAction } from "./permissions";
 
 const LEAD_ONLY: ProjectAction[] = [
   "project:edit",
@@ -21,5 +21,17 @@ describe("can", () => {
     expect(can("LEAD", "report:send")).toBe(true);
     expect(can("ADVISER", "report:send")).toBe(true);
     expect(can("MEMBER", "report:send")).toBe(false);
+  });
+});
+
+describe("canViewHistory", () => {
+  it("lets leads and advisers view anyone's history", () => {
+    expect(canViewHistory("LEAD", "me", "them")).toBe(true);
+    expect(canViewHistory("ADVISER", "me", "them")).toBe(true);
+  });
+
+  it("lets members view only their own", () => {
+    expect(canViewHistory("MEMBER", "me", "me")).toBe(true);
+    expect(canViewHistory("MEMBER", "me", "them")).toBe(false);
   });
 });

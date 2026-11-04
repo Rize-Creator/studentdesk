@@ -24,3 +24,8 @@ export function can(role: ProjectRole, action: ProjectAction): boolean {
 }
 
 export const ROLE_LABELS: Record<ProjectRole, string> = { LEAD: "Lead", MEMBER: "Member", ADVISER: "Adviser" };
+
+// Records are personal, so members see only their own. Leads and advisers need them to assign fairly.
+export function canViewHistory(role: ProjectRole, viewerId: string, targetId: string): boolean {
+  return role !== "MEMBER" || viewerId === targetId;
+}

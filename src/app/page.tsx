@@ -4,9 +4,9 @@ import { Wordmark } from "@/components/wordmark";
 import { getSessionUser } from "@/features/auth/session";
 
 const SUGGESTIONS = [
-  { name: "Carlo Bautista", match: 82, reason: "Completed 12 Logistics tasks", detail: "12 of 14 tasks on time, 2 active tasks" },
+  { name: "Carlo Bautista", match: 76, reason: "Completed 12 Logistics tasks", detail: "12 of 14 tasks on time, 3 active tasks" },
   { name: "Juan Dela Cruz", match: 69, reason: "Logistics Head, Foundation Day 2025", detail: "9 of 10 tasks on time, 3 active tasks" },
-  { name: "Ana Reyes", match: 41, reason: "No Logistics tasks yet", detail: "9 of 9 tasks on time, 2 active tasks" },
+  { name: "Maria Santos", match: 48, reason: "No Logistics tasks yet", detail: "5 of 6 tasks on time, no active tasks" },
 ];
 
 const STAGES = [
