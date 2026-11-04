@@ -105,10 +105,7 @@ tests/e2e/                                Playwright test
 4. Give the user the phase's checklist and that URL.
 5. When the user passes the checklist, guide them to merge into `main`, which updates the live site.
 
-Run migrations by hand with `npx prisma migrate deploy`: on the `dev` database when a phase's schema changes, and on `main` before merging. After Phase 1 merges, seed the `main` database once, using the command in Phase 7, Task 4, so the live site has sample data if time runs short. Every commit message ends with:
-
-```
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
-```
+Run migrations by hand with `npx prisma migrate deploy`: on the `dev` database when a phase's schema changes, and on `main` before merging. After Phase 1 merges, seed the `main` database once, using the command in Phase 7, Task 4, so the live site has sample data if time runs short.
+Commit messages have no attribution trailer.
 
 Claude commits locally. The user does every push, merge to `main` and Vercel deploy, following step-by-step guidance.
