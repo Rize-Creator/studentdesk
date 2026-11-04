@@ -84,3 +84,10 @@ export const sendBackSchema = z.object({
 export function fieldErrors(error: z.ZodError): Record<string, string[]> {
   return z.flattenError(error).fieldErrors as Record<string, string[]>;
 }
+
+export const moveSchema = z.object({
+  to: z.enum(["BACKLOG", "TODO", "IN_PROGRESS", "REVIEW", "DONE"]),
+  beforeId: optionalId,
+  afterId: optionalId,
+  note: optionalText(1000),
+});
