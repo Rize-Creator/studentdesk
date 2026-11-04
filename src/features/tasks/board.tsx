@@ -6,7 +6,6 @@ import {
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
-  closestCorners,
   useDroppable,
   useSensor,
   useSensors,
@@ -22,6 +21,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BoardCardView, SortableBoardCard } from "@/features/tasks/board-card";
+import { boardCollision } from "@/features/tasks/board-collision";
 import { splitByOwner } from "@/features/tasks/board-groups";
 import { SendBackDialog, SubmitReviewDialog } from "@/features/tasks/move-dialogs";
 import { dropTarget, positionAtEnd, positionBetween } from "@/features/tasks/positions";
@@ -262,7 +262,7 @@ export function Board({
       <DndContext
         id="board"
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={boardCollision}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDragCancel={() => setDragging(null)}
