@@ -10,15 +10,25 @@ import { Label } from "@/components/ui/label";
 const ERROR_MESSAGES: Record<string, string> = {
   InvalidCredentials: "That username or password is wrong.",
   LmsUnavailable: "The LMS can't be reached right now. Please try again in a few minutes.",
+  AccessDenied: "That Google account can't be used here. It needs a verified email and must be on the project's test user list.",
 };
 
 type QuickPick = { label: string; username: string; name: string };
 
-export function SignInForm({ demoPassword, quickPicks }: { demoPassword: string | null; quickPicks: QuickPick[] }) {
+const GOOGLE_FAILED = "Google sign-in didn't finish. Try again, or use a demo account.";
+
+type Props = {
+  demoPassword: string | null;
+  quickPicks: QuickPick[];
+  googleEnabled: boolean;
+  redirectError: string | null;
+};
+
+export function SignInForm({ demoPassword, quickPicks, googleEnabled, redirectError }: Props) {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(redirectError ? (ERROR_MESSAGES[redirectError] ?? GOOGLE_FAILED) : null);
   const [pending, setPending] = useState(false);
 
   async function submit(event: React.FormEvent) {
@@ -73,6 +83,14 @@ export function SignInForm({ demoPassword, quickPicks }: { demoPassword: string 
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <Button type="submit" disabled={pending}>{pending ? "Signing in…" : "Sign in"}</Button>
       </form>
+      {googleEnabled && (
+        <div className="flex flex-col gap-2 border-t border-border pt-4">
+          <Button type="button" variant="outline" onClick={() => signIn("google", { callbackUrl: "/home" })}>
+            Continue with Google
+          </Button>
+          <p className="text-xs text-muted-foreground">For the demo only, until the LMS is connected.</p>
+        </div>
+      )}
       </div>
     </main>
   );

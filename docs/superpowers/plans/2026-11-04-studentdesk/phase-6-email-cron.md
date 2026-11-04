@@ -8,6 +8,8 @@
 
 **Needs from the user:** the Gmail App Password, pasted into `.env` and Vercel by the user.
 
+**Change since this was written:** Google sign-in now exists in demo mode. The demo-mode email guard must also allow recipients whose `lmsId` starts with `google:`. Add a test for this when building Task 3.
+
 ---
 
 ### Task 1: Who gets what

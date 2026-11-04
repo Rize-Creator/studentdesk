@@ -119,7 +119,7 @@ Files marked pure contain no database code, so they can be tested and explained 
 
 ### Environment variables
 
-`DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `LMS_MODE`, `LMS_BASE_URL`, `EMAIL_MODE`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `EMAIL_FROM`, `DEMO_INBOX`, `CRON_SECRET`, `APP_URL`, `ALLOW_DEMO_RESET`. `NEXTAUTH_URL` is set only for local development, so Vercel preview URLs keep working.
+`DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `LMS_MODE`, `LMS_BASE_URL`, `EMAIL_MODE`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `EMAIL_FROM`, `DEMO_INBOX`, `CRON_SECRET`, `APP_URL`, `ALLOW_DEMO_RESET`. `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are also used. `NEXTAUTH_URL` is set for local development and for Vercel Production, where Google needs the exact live address. Leave it unset for Preview.
 
 ### Environments and Git
 
@@ -277,7 +277,7 @@ Running the job twice sends nothing extra, because of the dedupe keys.
 
 **Email modes:** `EMAIL_MODE=log` records emails without sending, for development. `EMAIL_MODE=smtp` sends through Gmail.
 
-**Demo inbox:** sample accounts use plus-addressing on one project Gmail address (`name+lead@gmail.com`), so all the emails land in one inbox you can show live. Sample accounts never email anyone else.
+**Demo inbox:** sample accounts use plus-addressing on one project Gmail address (`name+lead@gmail.com`), so all the emails land in one inbox you can show live. Sample accounts never email anyone else. People who signed in with Google get email at their own address.
 
 ## 11. Sign-in and the LMS adapter
 
@@ -297,7 +297,14 @@ interface LmsClient {
 
 **Mock mode:** a fixed list of fictional accounts. The sign-in page shows a "Demo mode: LMS not yet connected" notice and quick-pick buttons for lead, member and adviser.
 
-**Live mode:** the same interface, using the teacher's API. Mock accounts and the reset script don't work in this mode.
+**Live mode:** the same interface, using the teacher's API. Mock accounts, Google sign-in and the reset script don't work in this mode.
+
+**Google sign-in (demo stand-in):** because the LMS API hasn't arrived, the user asked for Google sign-in for the demo. It sits beside the demo accounts in mock mode only and is labelled as temporary.
+- It uses the Google provider in Auth.js, with a verified email required. The user is saved with `lmsId` set to `google:<id>`.
+- The Google project stays in Testing status, so only listed test users can sign in.
+- Google accepts exact redirect addresses only, so it works on localhost and the live URL but not on preview URLs. Demo accounts still work on previews.
+- A new Google user has no projects until they create one or a lead adds them.
+- The manuscript doesn't include Google, so this must be presented as temporary and removed in Phase 10.
 
 ### What to ask the teacher about the API
 
@@ -408,7 +415,7 @@ Nobody else can create these accounts for you. Don't paste any passwords or conn
 |---|---|
 | Where's the AI? | It's a history-based recommender that scores members from stored records using a transparent weighted formula. It doesn't train a model, since no real data exists yet. Chapter II supports structured decision support with human oversight (Estrellado and Miranda, 2023; Cacho, 2024), and the lead always decides |
 | Is it real time? | Near real time. Screens refresh every 10 to 15 seconds, as Chapter III describes |
-| Is the LMS connected? | Not yet. Sign-in goes through an adapter with a mock LMS until the API is available, and swapping it in won't affect the rest of the system |
+| Is the LMS connected? | Not yet. Sign-in goes through an adapter with demo accounts and a temporary Google sign-in until the API is available, and swapping it in won't affect the rest of the system |
 | Is this real data? | No. It's sample data, labelled as sample |
 | Why build before the interviews? | RAD uses working prototypes to get feedback. This is the first prototype, and interviews and user testing are next |
 | How is student data protected? | LMS passwords aren't stored, permissions are checked on the server, and secrets are kept out of the code. A Data Privacy Act review is planned in Phase 8 |

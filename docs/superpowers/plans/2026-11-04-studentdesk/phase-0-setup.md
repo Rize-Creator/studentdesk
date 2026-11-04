@@ -500,7 +500,7 @@ In Vercel: **Add New → Project → Import** `studentdesk`. Before deploying, a
 
 To make each random value, run `openssl rand -base64 32` in Git Bash and paste the result.
 
-Don't set `NEXTAUTH_URL` or `ALLOW_DEMO_RESET` on Vercel.
+Set `NEXTAUTH_URL` to the live URL for **Production** only, plus `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` if Google sign-in is ready. Don't set `ALLOW_DEMO_RESET` on Vercel.
 
 - [ ] **Step 4: Check the live site**
 
