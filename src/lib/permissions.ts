@@ -22,3 +22,5 @@ const ALLOWED: Record<ProjectAction, readonly ProjectRole[]> = {
 export function can(role: ProjectRole, action: ProjectAction): boolean {
   return ALLOWED[action].includes(role);
 }
+
+export const ROLE_LABELS: Record<ProjectRole, string> = { LEAD: "Lead", MEMBER: "Member", ADVISER: "Adviser" };
