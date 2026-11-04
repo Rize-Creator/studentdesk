@@ -1,3 +1,4 @@
+import { FolderKanban } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -66,14 +67,20 @@ export default async function MemberHistoryPage({ params }: { params: Promise<{ 
           <section className="flex flex-col gap-4">
             <h3 className="text-lg font-bold">Tasks finished</h3>
             {history.finished.groups.map((group) => (
-              <div key={group.projectId} className="flex flex-col gap-1">
-                <h4 className="text-sm font-bold">{group.projectName}</h4>
-                <ul className="divide-y divide-border border-y border-border">
+              <div key={group.projectId} className="overflow-hidden rounded-xl border border-border">
+                <h4 className="flex items-center gap-2 bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground">
+                  <FolderKanban aria-hidden className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1">{group.projectName}</span>
+                  <span className="shrink-0 text-xs font-medium">
+                    {group.tasks.length} {group.tasks.length === 1 ? "task" : "tasks"}
+                  </span>
+                </h4>
+                <ul className="divide-y divide-border">
                   {group.tasks.map((task) => (
-                    <li key={task.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 text-sm">
+                    <li key={task.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5 text-sm">
                       <Link
                         href={`/projects/${group.projectId}/board?task=${task.id}`}
-                        className="min-w-0 flex-1 basis-48 font-semibold underline-offset-4 hover:underline"
+                        className="min-w-0 flex-1 basis-48 underline-offset-4 hover:text-primary hover:underline"
                       >
                         {task.title}
                       </Link>
