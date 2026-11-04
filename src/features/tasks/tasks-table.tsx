@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PriorityChip } from "@/components/priority-chip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -19,8 +20,6 @@ export type TaskRow = EditableTask & {
   categoryName: string;
   assigneeName: string | null;
 };
-
-const PRIORITY_LABELS = { LOW: "Low", MEDIUM: "Medium", HIGH: "High" };
 
 export function TasksTable({
   projectId,
@@ -74,7 +73,7 @@ export function TasksTable({
               <TableRow key={task.id}>
                 <TableCell className="font-bold whitespace-normal">{task.title}</TableCell>
                 <TableCell>{task.categoryName}</TableCell>
-                <TableCell>{PRIORITY_LABELS[task.priority]}</TableCell>
+                <TableCell><PriorityChip priority={task.priority} /></TableCell>
                 <TableCell><Badge variant="secondary">{STATUS_LABELS[task.status]}</Badge></TableCell>
                 <TableCell>{task.assigneeName ?? "Unassigned"}</TableCell>
                 <TableCell className="tabular-nums">{formatManilaDate(task.deadline)}</TableCell>

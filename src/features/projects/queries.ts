@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { summarizeTasks } from "./summary";
 
 export function listMyProjects(userId: string) {
   return prisma.projectMember.findMany({
@@ -45,4 +46,18 @@ export function listMilestones(projectId: string) {
     include: { tasks: { select: { status: true } } },
     orderBy: { dueDate: "asc" },
   });
+}
+
+export async function getProjectSummary(projectId: string, targetDate: Date) {
+  const [tasks, leads] = await Promise.all([
+    prisma.task.findMany({ where: { projectId }, select: { status: true, deadline: true } }),
+    prisma.projectMember.findMany({
+      where: { projectId, role: "LEAD" },
+      select: { user: { select: { name: true } } },
+    }),
+  ]);
+  return {
+    summary: summarizeTasks(tasks, targetDate, new Date()),
+    leadNames: leads.map((lead) => lead.user.name),
+  };
 }

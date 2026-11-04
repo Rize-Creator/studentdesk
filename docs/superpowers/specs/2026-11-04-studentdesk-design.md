@@ -127,6 +127,14 @@ Files marked pure contain no database code, so they can be tested and explained 
 - **Neon `dev` branch:** local development, preview sites and automated tests, so testing never touches the demo data.
 - **Git:** each phase is built on its own branch, which gives a Vercel preview URL to test. Once the phase's checklist passes, the branch merges into `main`, which updates the live site.
 
+## 4a. Visual design
+
+The user chose a layout inspired by a project-management design they found, in CCDI's colors: blue, red and white.
+- A blue left panel with navigation and a project summary, and a white rounded main area.
+- Icon tabs, a breadcrumb, and small priority labels with a colored dot.
+- Red is kept for warnings, high priority and the main call to action.
+- Functions stay as planned, so features in that design but outside this plan, such as search, Gantt and Calendar, aren't added.
+
 ## 5. Data model
 
 **User:** `id`, `lmsId` (unique), `email` (unique), `name`, `lastLoginAt`, `createdAt`.

@@ -8,11 +8,10 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-heading: var(--font-display);
-  --color-board: var(--board);
-  --color-chalk: var(--chalk);
-  --color-marker: var(--marker);
-  --color-caution: var(--caution);
+  --font-heading: var(--font-sans);
+  --color-navy: var(--navy);
+  --color-brand-red: var(--brand-red);
+  --color-tint: var(--tint);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -52,30 +51,30 @@
 }
 
 :root {
-  --background: #f4f6f2;
-  --foreground: #14231f;
+  --background: #ffffff;
+  --foreground: #101a33;
   --card: #ffffff;
-  --card-foreground: #14231f;
+  --card-foreground: #101a33;
   --popover: #ffffff;
-  --popover-foreground: #14231f;
-  --primary: #1c4a40;
-  --primary-foreground: #f7f9f5;
-  --secondary: #e6ebe4;
-  --secondary-foreground: #14231f;
-  --muted: #e6ebe4;
-  --muted-foreground: #51625c;
-  --accent: #e6ebe4;
-  --accent-foreground: #14231f;
-  --destructive: #b3372f;
-  --border: #d3dbd2;
-  --input: #c3cdc2;
-  --ring: #1c4a40;
+  --popover-foreground: #101a33;
+  --primary: #123a9c;
+  --primary-foreground: #ffffff;
+  --secondary: #edf2fc;
+  --secondary-foreground: #101a33;
+  --muted: #edf2fc;
+  --muted-foreground: #53607a;
+  --accent: #edf2fc;
+  --accent-foreground: #101a33;
+  --destructive: #c8102e;
+  --border: #dbe3f2;
+  --input: #c9d4ea;
+  --ring: #123a9c;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.5rem;
+  --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -84,10 +83,9 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --board: #17352f;
-  --chalk: #f2f5ee;
-  --marker: #f4c93b;
-  --caution: #8a5a00;
+  --navy: #0a2472;
+  --brand-red: #c8102e;
+  --tint: #dfe8fb;
 }
 
 .dark {
@@ -138,13 +136,11 @@
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
 }
 
-.marker {
-  background: linear-gradient(transparent 12%, var(--marker) 12%, var(--marker) 88%, transparent 88%);
-  padding-inline: 0.15em;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+.highlight {
+  background: var(--tint);
+  border-radius: 0.25rem;
+  padding-inline: 0.25em;
 }

@@ -10,14 +10,21 @@ type Row = Awaited<ReturnType<typeof listMyProjects>>[number];
 
 function ProjectList({ rows }: { rows: Row[] }) {
   return (
-    <ul className="divide-y divide-border border-y border-border">
+    <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {rows.map(({ project, role }) => (
         <li key={project.id}>
-          <Link href={`/projects/${project.id}`} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-3 hover:bg-secondary/60">
-            <span className="min-w-0 flex-1 font-bold">{project.name}</span>
-            <span className="text-sm text-muted-foreground">{project.type === "EVENT" ? "Event" : "Academic project"}</span>
-            <Badge variant="secondary">{ROLE_LABELS[role]}</Badge>
-            <span className="w-28 text-right text-sm tabular-nums">{formatManilaDate(project.targetDate)}</span>
+          <Link
+            href={`/projects/${project.id}`}
+            className="flex h-full flex-col gap-3 rounded-xl border border-border p-4 transition-colors hover:border-primary"
+          >
+            <span className="flex items-start justify-between gap-3">
+              <span className="min-w-0 font-bold">{project.name}</span>
+              <Badge variant="secondary">{ROLE_LABELS[role]}</Badge>
+            </span>
+            <span className="mt-auto flex items-center justify-between gap-3 text-sm text-muted-foreground">
+              <span>{project.type === "EVENT" ? "Event" : "Academic project"}</span>
+              <span className="tabular-nums">{formatManilaDate(project.targetDate)}</span>
+            </span>
           </Link>
         </li>
       ))}

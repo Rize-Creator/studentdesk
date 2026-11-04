@@ -28,11 +28,11 @@ export default async function GuestHomePage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <section className="bg-board text-chalk">
+      <section className="bg-navy text-white">
         <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-8">
           <header className="flex items-center justify-between gap-4">
             <Wordmark />
-            <Link href="/sign-in" className="text-sm underline underline-offset-4 hover:text-marker">
+            <Link href="/sign-in" className="text-sm underline underline-offset-4 hover:text-white/75">
               Sign in
             </Link>
           </header>
@@ -40,19 +40,19 @@ export default async function GuestHomePage() {
         <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pt-12 pb-16 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-16 lg:pb-24">
           <div>
             <h1 className="text-5xl leading-[1.02] font-bold sm:text-7xl">Who should take this task?</h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-chalk/85">
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85">
               StudentDesk keeps CCDI events and capstone projects in one place. When you create a task, it suggests who
               to assign, based on each member&apos;s past work and how much they&apos;re already handling. You still decide.
             </p>
             <Link
               href="/sign-in"
-              className="mt-8 inline-block rounded-md bg-marker px-6 py-3 font-bold text-foreground outline-offset-4 outline-chalk transition-colors hover:bg-chalk focus-visible:outline-2"
+              className="mt-8 inline-block rounded-lg bg-brand-red px-6 py-3 font-bold text-white outline-offset-4 outline-white transition-colors hover:bg-white hover:text-brand-red focus-visible:outline-2"
             >
               Sign in with LMS
             </Link>
           </div>
 
-          <figure className="rounded-sm bg-card p-5 text-foreground shadow-[6px_6px_0_rgb(0_0_0/0.25)] sm:p-7 lg:rotate-1">
+          <figure className="rounded-2xl bg-card p-5 text-foreground shadow-2xl sm:p-7">
             <p className="text-sm text-muted-foreground">New Logistics task, due Nov 20</p>
             <p className="mt-1 font-heading text-2xl font-bold">Book the sound system</p>
             <ol className="mt-5 divide-y divide-border">
@@ -62,7 +62,7 @@ export default async function GuestHomePage() {
                   <div className="min-w-0">
                     <p className="font-bold">{person.name}</p>
                     <p className="text-sm">
-                      <span className={index === 0 ? "marker" : undefined}>{person.reason}</span>
+                      <span className={index === 0 ? "highlight" : undefined}>{person.reason}</span>
                     </p>
                     <p className="text-sm text-muted-foreground">{person.detail}</p>
                   </div>
@@ -87,9 +87,9 @@ export default async function GuestHomePage() {
             {STAGES.map((stage) => (
               <li key={stage.name} className="min-w-0">
                 <p className="mb-2 text-xs font-bold sm:text-sm">{stage.name}</p>
-                <div className="flex min-h-32 flex-col gap-1.5 rounded-sm bg-secondary p-1.5 sm:gap-2 sm:p-2">
+                <div className="flex min-h-32 flex-col gap-1.5 rounded-xl bg-secondary p-1.5 sm:gap-2 sm:p-2">
                   {Array.from({ length: stage.cards }, (_, card) => (
-                    <div key={card} aria-hidden className="h-7 rounded-sm border border-border bg-card sm:h-9" />
+                    <div key={card} aria-hidden className="h-7 rounded-md border border-border bg-card sm:h-9" />
                   ))}
                 </div>
               </li>

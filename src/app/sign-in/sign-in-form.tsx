@@ -46,11 +46,11 @@ export function SignInForm({ demoPassword, quickPicks, googleEnabled, redirectEr
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center bg-board p-4">
-      <div className="flex w-full max-w-md flex-col gap-6 rounded-sm bg-card p-6 shadow-[6px_6px_0_rgb(0_0_0/0.25)] sm:p-8">
+    <main className="flex flex-1 items-center justify-center bg-navy p-4">
+      <div className="flex w-full max-w-md flex-col gap-6 rounded-2xl bg-card p-6 shadow-2xl sm:p-8">
       <h1 className="text-3xl font-bold">Sign in with LMS</h1>
       {demoPassword && (
-        <div className="rounded-sm bg-secondary p-3 text-sm">
+        <div className="rounded-lg bg-secondary p-3 text-sm">
           <p className="font-medium">Demo mode: LMS not yet connected</p>
           <p className="mb-2">These are sample accounts. Pick one to fill in the form.</p>
           <div className="flex flex-wrap gap-2">

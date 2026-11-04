@@ -1,7 +1,9 @@
-import { Badge } from "@/components/ui/badge";
+import { AppShell } from "@/components/app-shell";
 import { requireMember } from "@/features/auth/session";
+import { ProjectPanel } from "@/features/projects/project-panel";
 import { ProjectTabs } from "@/features/projects/project-tabs";
-import { can, ROLE_LABELS } from "@/lib/permissions";
+import { getProjectSummary } from "@/features/projects/queries";
+import { can } from "@/lib/permissions";
 
 export default async function ProjectLayout({
   children,
@@ -11,18 +13,28 @@ export default async function ProjectLayout({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const { member, project } = await requireMember(projectId);
+  const { user, member, project } = await requireMember(projectId);
+  const { summary, leadNames } = await getProjectSummary(project.id, project.targetDate);
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <h1 className="text-3xl font-bold">{project.name}</h1>
-          <Badge variant="secondary">{ROLE_LABELS[member.role]}</Badge>
-          {project.status === "ARCHIVED" && <Badge variant="outline">Archived</Badge>}
-        </div>
-        <ProjectTabs projectId={projectId} showSettings={can(member.role, "project:edit")} />
+    <AppShell
+      user={user}
+      panel={
+        <ProjectPanel
+          name={project.name}
+          type={project.type}
+          archived={project.status === "ARCHIVED"}
+          role={member.role}
+          leadNames={leadNames}
+          startDate={project.startDate}
+          targetDate={project.targetDate}
+          summary={summary}
+        />
+      }
+    >
+      <div className="flex flex-col gap-6">
+        <ProjectTabs projectId={projectId} projectName={project.name} showSettings={can(member.role, "project:edit")} />
+        {children}
       </div>
-      {children}
-    </div>
+    </AppShell>
   );
 }
