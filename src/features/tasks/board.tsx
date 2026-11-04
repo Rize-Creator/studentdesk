@@ -79,7 +79,7 @@ function Column({
   return (
     <section
       aria-label={STATUS_LABELS[status]}
-      className="flex w-72 shrink-0 snap-start flex-col gap-2 lg:w-auto lg:min-w-56 lg:flex-1"
+      className="flex w-72 shrink-0 snap-start flex-col gap-2 lg:w-auto lg:min-w-44 lg:flex-1 lg:shrink"
     >
       <h2 className="flex items-center gap-2 px-1 text-sm font-bold">
         <Icon aria-hidden className={cn("size-4", status === "DONE" ? "text-primary" : "text-muted-foreground")} />
@@ -267,7 +267,7 @@ export function Board({
         onDragEnd={handleDragEnd}
         onDragCancel={() => setDragging(null)}
       >
-        <div className="relative -mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:scroll-px-0 sm:px-0">
+        <div className="thin-scroll relative -mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:scroll-px-0 sm:px-0">
           {TASK_STATUSES.map((status) => {
             const column = tasks.filter((task) => task.status === status).sort((a, b) => a.position - b.position);
             const { mine, others } = splitByOwner(column, viewerId);

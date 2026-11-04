@@ -144,3 +144,15 @@ h3 {
   border-radius: 0.25rem;
   padding-inline: 0.25em;
 }
+
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--input) transparent;
+}
+
+/* Touch screens swipe sideways, so they don't need a visible bar. */
+@media (pointer: coarse) {
+  .thin-scroll {
+    scrollbar-width: none;
+  }
+}

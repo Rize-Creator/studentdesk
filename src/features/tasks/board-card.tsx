@@ -41,15 +41,15 @@ export function BoardCardView({
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <PriorityChip priority={task.priority} />
         <span className="text-xs text-muted-foreground">{task.categoryName}</span>
       </div>
       <button type="button" onClick={onOpen} className="text-left text-sm font-bold hover:text-primary">
         {task.title}
       </button>
-      <div className="flex items-center justify-between gap-2 border-t border-border pt-2 text-xs">
-        <span className={cn("flex items-center gap-1", overdue ? "font-bold text-brand-red" : "text-muted-foreground")}>
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-border pt-2 text-xs">
+        <span className={cn("flex items-center gap-1 whitespace-nowrap", overdue ? "font-bold text-brand-red" : "text-muted-foreground")}>
           <CalendarDays aria-hidden className="size-3.5" />
           {overdue && "Overdue: "}
           {formatManilaDate(new Date(task.deadline))}

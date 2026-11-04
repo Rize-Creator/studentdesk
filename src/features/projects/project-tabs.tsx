@@ -43,7 +43,7 @@ export function ProjectTabs({
           )}
         </ol>
       </nav>
-      <nav aria-label="Project" className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <nav aria-label="Project" className="thin-scroll -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <ul className="flex min-w-max gap-1 border-b border-border">
           {tabs.map(({ href, label, icon: Icon }) => {
             const current = isCurrent(href);
