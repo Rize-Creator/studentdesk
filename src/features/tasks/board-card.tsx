@@ -21,18 +21,26 @@ function initials(name: string): string {
 export function BoardCardView({
   task,
   now,
+  mine,
   onOpen,
   className,
 }: {
   task: BoardTask;
   now: number;
+  mine: boolean;
   onOpen?: () => void;
   className?: string;
 }) {
   const overdue = task.status !== "DONE" && Date.parse(task.deadline) < now;
   const missingAssignee = !task.assigneeId && NEEDS_ASSIGNEE.includes(task.status);
   return (
-    <div className={cn("flex flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-xs", className)}>
+    <div
+      className={cn(
+        "flex flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-xs",
+        mine && "border-l-4 border-l-primary",
+        className,
+      )}
+    >
       <div className="flex items-center justify-between gap-2">
         <PriorityChip priority={task.priority} />
         <span className="text-xs text-muted-foreground">{task.categoryName}</span>
@@ -47,7 +55,11 @@ export function BoardCardView({
           {formatManilaDate(new Date(task.deadline))}
           {task.hasDeliverable && <Link2 aria-label="Has a deliverable link" className="ml-1 size-3.5" />}
         </span>
-        {task.assigneeName ? (
+        {mine ? (
+          <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 text-[0.65rem] font-bold text-primary-foreground">
+            You
+          </span>
+        ) : task.assigneeName ? (
           <span
             title={task.assigneeName}
             className="flex size-6 shrink-0 items-center justify-center rounded-full bg-tint text-[0.65rem] font-bold text-primary"
@@ -68,11 +80,13 @@ export function BoardCardView({
 export function SortableBoardCard({
   task,
   now,
+  mine,
   movable,
   onOpen,
 }: {
   task: BoardTask;
   now: number;
+  mine: boolean;
   movable: boolean;
   onOpen: () => void;
 }) {
@@ -98,7 +112,7 @@ export function SortableBoardCard({
         isDragging && "opacity-40",
       )}
     >
-      <BoardCardView task={task} now={now} onOpen={onOpen} />
+      <BoardCardView task={task} now={now} mine={mine} onOpen={onOpen} />
     </li>
   );
 }

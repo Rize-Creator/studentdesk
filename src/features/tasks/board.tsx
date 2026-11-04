@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BoardCardView, SortableBoardCard } from "@/features/tasks/board-card";
+import { splitByOwner } from "@/features/tasks/board-groups";
 import { SendBackDialog, SubmitReviewDialog } from "@/features/tasks/move-dialogs";
 import { dropTarget, positionAtEnd, positionBetween } from "@/features/tasks/positions";
 import { moveTask } from "@/features/tasks/actions";
@@ -58,6 +59,10 @@ function applyMove(tasks: BoardTask[], { task, to, beforeId, afterId }: MoveInpu
       ? positionAtEnd(column.length > 0 ? Math.max(...column) : null)
       : positionBetween(before, after);
   return tasks.map((t) => (t.id === task.id ? { ...t, status: to, position } : t));
+}
+
+function GroupLabel({ children }: { children: string }) {
+  return <li className="px-1 pt-1 text-xs font-bold text-muted-foreground first:pt-0">{children}</li>;
 }
 
 function Column({
@@ -115,6 +120,7 @@ export function Board({
   const [pending, setPending] = useState<PendingDialog | null>(null);
   const [openTaskId, setOpenTaskId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [onlyMine, setOnlyMine] = useState(false);
   const [now] = useState(() => Date.now());
 
   const { data } = useQuery({
@@ -212,6 +218,8 @@ export function Board({
     router.refresh();
   };
 
+  const myTaskCount = splitByOwner(tasks, viewerId).mine.length;
+  const showOnlyMine = onlyMine && myTaskCount > 0;
   const openTask = tasks.find((task) => task.id === openTaskId);
   const canCreate = can(role, "tasks:manage") && !archived;
 
@@ -225,7 +233,30 @@ export function Board({
             {archived ? "This project is archived, so its board is read-only." : role === "ADVISER" ? "You can view this board but not change it." : "You can move tasks assigned to you."}
           </p>
         )}
-        <p className="text-xs text-muted-foreground">Updates automatically every 10 seconds</p>
+        <div className="flex flex-wrap items-center gap-3">
+          {myTaskCount > 0 && (
+            <div role="group" aria-label="Show tasks" className="flex rounded-lg bg-muted p-0.5">
+              {[
+                { label: "Everyone", value: false },
+                { label: `My tasks (${myTaskCount})`, value: true },
+              ].map(({ label, value }) => (
+                <button
+                  key={label}
+                  type="button"
+                  aria-pressed={showOnlyMine === value}
+                  onClick={() => setOnlyMine(value)}
+                  className={cn(
+                    "rounded-md px-3 py-1 text-sm font-semibold",
+                    showOnlyMine === value ? "bg-card text-primary shadow-xs" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">Updates automatically every 10 seconds</p>
+        </div>
       </div>
 
       <DndContext
@@ -236,25 +267,32 @@ export function Board({
         onDragEnd={handleDragEnd}
         onDragCancel={() => setDragging(null)}
       >
-        <div className="relative -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+        <div className="relative -mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:scroll-px-0 sm:px-0">
           {TASK_STATUSES.map((status) => {
             const column = tasks.filter((task) => task.status === status).sort((a, b) => a.position - b.position);
+            const { mine, others } = splitByOwner(column, viewerId);
+            const visibleOthers = showOnlyMine ? [] : others;
+            const renderCard = (task: BoardTask) => (
+              <SortableBoardCard
+                key={task.id}
+                task={task}
+                now={now}
+                mine={task.assigneeId === viewerId}
+                movable={checkFor(task, task.status).ok}
+                onOpen={() => setOpenTaskId(task.id)}
+              />
+            );
             return (
-              <Column key={status} status={status} tasks={column}>
-                {column.map((task) => (
-                  <SortableBoardCard
-                    key={task.id}
-                    task={task}
-                    now={now}
-                    movable={checkFor(task, task.status).ok}
-                    onOpen={() => setOpenTaskId(task.id)}
-                  />
-                ))}
+              <Column key={status} status={status} tasks={[...mine, ...visibleOthers]}>
+                {mine.length > 0 && <GroupLabel>Your tasks</GroupLabel>}
+                {mine.map(renderCard)}
+                {mine.length > 0 && visibleOthers.length > 0 && <GroupLabel>Other members</GroupLabel>}
+                {visibleOthers.map(renderCard)}
               </Column>
             );
           })}
         </div>
-        <DragOverlay>{dragging && <BoardCardView task={dragging} now={now} className="rotate-1 shadow-lg" />}</DragOverlay>
+        <DragOverlay>{dragging && <BoardCardView task={dragging} now={now} mine={dragging.assigneeId === viewerId} className="rotate-1 shadow-lg" />}</DragOverlay>
       </DndContext>
 
       {tasks.length === 0 && (
