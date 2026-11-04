@@ -120,17 +120,3 @@ const READINESS_ORDER: Record<ReadinessStatus, number> = { BEHIND: 0, AT_RISK: 1
 export function sortByReadiness<T extends { readiness: { status: ReadinessStatus } }>(rows: T[]): T[] {
   return [...rows].sort((a, b) => READINESS_ORDER[a.readiness.status] - READINESS_ORDER[b.readiness.status]);
 }
-
-// Gives each item the first lane where it won't overlap, so timeline labels stay readable.
-export function assignLanes(positions: number[], minGap: number): number[] {
-  const laneEnds: number[] = [];
-  const lanes = new Array<number>(positions.length);
-  const order = positions.map((position, index) => ({ position, index })).sort((a, b) => a.position - b.position);
-  for (const { position, index } of order) {
-    let lane = laneEnds.findIndex((end) => position - end >= minGap);
-    if (lane === -1) lane = laneEnds.length;
-    laneEnds[lane] = position;
-    lanes[index] = lane;
-  }
-  return lanes;
-}

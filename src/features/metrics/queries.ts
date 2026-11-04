@@ -95,6 +95,8 @@ export async function getProjectDashboard(projectId: string, now = new Date()) {
       title: task.title,
       status: task.status,
       deadline: task.deadline.toISOString(),
+      createdAt: task.createdAt.toISOString(),
+      milestoneId: task.milestoneId,
       overdue: isOverdue(task, now),
     })),
   };
