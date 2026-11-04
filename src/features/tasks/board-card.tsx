@@ -1,0 +1,104 @@
+"use client";
+
+import { useSortable } from "@dnd-kit/sortable";
+import { CalendarDays, Link2 } from "lucide-react";
+import { PriorityChip } from "@/components/priority-chip";
+import type { BoardTask } from "@/features/tasks/queries";
+import { formatManilaDate } from "@/lib/dates";
+import { cn } from "@/lib/utils";
+
+const NEEDS_ASSIGNEE = ["IN_PROGRESS", "REVIEW", "DONE"];
+
+function initials(name: string): string {
+  return name
+    .replace(/^Prof\.\s*/, "")
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+export function BoardCardView({
+  task,
+  now,
+  onOpen,
+  className,
+}: {
+  task: BoardTask;
+  now: number;
+  onOpen?: () => void;
+  className?: string;
+}) {
+  const overdue = task.status !== "DONE" && Date.parse(task.deadline) < now;
+  const missingAssignee = !task.assigneeId && NEEDS_ASSIGNEE.includes(task.status);
+  return (
+    <div className={cn("flex flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-xs", className)}>
+      <div className="flex items-center justify-between gap-2">
+        <PriorityChip priority={task.priority} />
+        <span className="text-xs text-muted-foreground">{task.categoryName}</span>
+      </div>
+      <button type="button" onClick={onOpen} className="text-left text-sm font-bold hover:text-primary">
+        {task.title}
+      </button>
+      <div className="flex items-center justify-between gap-2 border-t border-border pt-2 text-xs">
+        <span className={cn("flex items-center gap-1", overdue ? "font-bold text-brand-red" : "text-muted-foreground")}>
+          <CalendarDays aria-hidden className="size-3.5" />
+          {overdue && "Overdue: "}
+          {formatManilaDate(new Date(task.deadline))}
+          {task.hasDeliverable && <Link2 aria-label="Has a deliverable link" className="ml-1 size-3.5" />}
+        </span>
+        {task.assigneeName ? (
+          <span
+            title={task.assigneeName}
+            className="flex size-6 shrink-0 items-center justify-center rounded-full bg-tint text-[0.65rem] font-bold text-primary"
+          >
+            <span className="sr-only">{task.assigneeName}</span>
+            <span aria-hidden>{initials(task.assigneeName)}</span>
+          </span>
+        ) : (
+          <span className={cn("shrink-0", missingAssignee ? "font-bold text-brand-red" : "text-muted-foreground")}>
+            Unassigned
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function SortableBoardCard({
+  task,
+  now,
+  movable,
+  onOpen,
+}: {
+  task: BoardTask;
+  now: number;
+  movable: boolean;
+  onOpen: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id,
+    disabled: !movable,
+  });
+  return (
+    <li
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      role={undefined}
+      tabIndex={movable ? 0 : undefined}
+      aria-label={movable ? `Move ${task.title}` : undefined}
+      style={{
+        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+        transition,
+      }}
+      className={cn(
+        "touch-manipulation rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        movable && "cursor-grab active:cursor-grabbing",
+        isDragging && "opacity-40",
+      )}
+    >
+      <BoardCardView task={task} now={now} onOpen={onOpen} />
+    </li>
+  );
+}
