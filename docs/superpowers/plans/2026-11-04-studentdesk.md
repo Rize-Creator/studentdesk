@@ -101,9 +101,9 @@ tests/e2e/                                Playwright test
 
 1. Create the branch `phase-N-short-name` from `main`.
 2. Work through the tasks in order, using test-first steps for pure logic.
-3. Push the branch, which creates a Vercel preview URL.
+3. Give the user the command to push the branch, which creates a Vercel preview URL.
 4. Give the user the phase's checklist and that URL.
-5. When the user passes the checklist, merge into `main`, which updates the live site.
+5. When the user passes the checklist, guide them to merge into `main`, which updates the live site.
 
 Run migrations by hand with `npx prisma migrate deploy`: on the `dev` database when a phase's schema changes, and on `main` before merging. After Phase 1 merges, seed the `main` database once, using the command in Phase 7, Task 4, so the live site has sample data if time runs short. Every commit message ends with:
 
@@ -111,4 +111,4 @@ Run migrations by hand with `npx prisma migrate deploy`: on the `dev` database w
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 ```
 
-The user approves commits and pushes for this build by approving this plan.
+Claude commits locally. The user does every push, merge to `main` and Vercel deploy, following step-by-step guidance.
