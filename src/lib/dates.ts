@@ -36,3 +36,7 @@ export function formatManilaDate(date: Date): string {
     year: "numeric",
   }).format(date);
 }
+
+export function formatDateKeyShort(key: string): string {
+  return new Intl.DateTimeFormat("en-US", { timeZone: MANILA_TZ, month: "short", day: "numeric" }).format(startOfManilaDay(key));
+}

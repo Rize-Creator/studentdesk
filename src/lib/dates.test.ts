@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   addDaysToKey,
+  formatDateKeyShort,
   endOfManilaDay,
   formatManilaDate,
   isOnTime,
@@ -28,6 +29,12 @@ describe("Manila dates", () => {
 
   it("formats dates for display", () => {
     expect(formatManilaDate(endOfManilaDay("2026-11-07"))).toBe("Nov 7, 2026");
+  });
+});
+
+describe("formatDateKeyShort", () => {
+  it("shows a short month and day for a date key", () => {
+    expect(formatDateKeyShort("2026-11-07")).toBe("Nov 7");
   });
 });
 

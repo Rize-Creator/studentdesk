@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  assignLanes,
+  sortByReadiness,
   computeReadiness,
   countByCategory,
   countByStatus,
@@ -80,11 +82,11 @@ describe("computeReadiness", () => {
 
 describe("overdue rules", () => {
   it("doesn't count a Done task as overdue", () => {
-    expect(isOverdue({ status: "DONE", priority: "LOW", deadline: past }, now)).toBe(false);
+    expect(isOverdue({ status: "DONE", deadline: past }, now)).toBe(false);
   });
 
   it("counts a late unfinished task as overdue", () => {
-    expect(isOverdue({ status: "REVIEW", priority: "LOW", deadline: past }, now)).toBe(true);
+    expect(isOverdue({ status: "REVIEW", deadline: past }, now)).toBe(true);
   });
 
   it("treats a milestone as complete when marked, or when all its tasks are Done", () => {
@@ -151,5 +153,39 @@ describe("timelinePercent", () => {
   it("stays within 0 to 100", () => {
     expect(timelinePercent(future, startDate, targetDate)).toBe(100);
     expect(timelinePercent(new Date("2025-01-01T00:00:00.000Z"), startDate, targetDate)).toBe(0);
+  });
+});
+
+describe("sortByReadiness", () => {
+  it("puts the projects needing attention first", () => {
+    const rows = [
+      { name: "a", readiness: { status: "ON_TRACK" as const } },
+      { name: "b", readiness: { status: "NO_TASKS" as const } },
+      { name: "c", readiness: { status: "BEHIND" as const } },
+      { name: "d", readiness: { status: "AT_RISK" as const } },
+    ];
+    expect(sortByReadiness(rows).map((row) => row.name)).toEqual(["c", "d", "a", "b"]);
+  });
+});
+
+describe("assignLanes", () => {
+  it("keeps items on one lane when they're far apart", () => {
+    expect(assignLanes([10, 40, 70], 20)).toEqual([0, 0, 0]);
+  });
+
+  it("moves an item to the next lane when it would overlap", () => {
+    expect(assignLanes([10, 15, 20, 60], 20)).toEqual([0, 1, 2, 0]);
+  });
+
+  it("reuses a lane once there's room again", () => {
+    expect(assignLanes([10, 15, 35], 20)).toEqual([0, 1, 0]);
+  });
+
+  it("keeps results in the order given, even if the input isn't sorted", () => {
+    expect(assignLanes([60, 10, 15], 20)).toEqual([0, 0, 1]);
+  });
+
+  it("handles no items", () => {
+    expect(assignLanes([], 20)).toEqual([]);
   });
 });
