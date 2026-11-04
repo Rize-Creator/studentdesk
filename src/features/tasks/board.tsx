@@ -101,6 +101,7 @@ function Column({
 export function Board({
   projectId,
   initialTasks,
+  initialOpenTaskId,
   viewerId,
   role,
   archived,
@@ -108,6 +109,7 @@ export function Board({
 }: {
   projectId: string;
   initialTasks: BoardTask[];
+  initialOpenTaskId: string | null;
   viewerId: string;
   role: ProjectRole;
   archived: boolean;
@@ -118,7 +120,7 @@ export function Board({
   const queryKey = ["board", projectId];
   const [dragging, setDragging] = useState<BoardTask | null>(null);
   const [pending, setPending] = useState<PendingDialog | null>(null);
-  const [openTaskId, setOpenTaskId] = useState<string | null>(null);
+  const [openTaskId, setOpenTaskId] = useState<string | null>(initialOpenTaskId);
   const [creating, setCreating] = useState(false);
   const [onlyMine, setOnlyMine] = useState(false);
   const [now] = useState(() => Date.now());

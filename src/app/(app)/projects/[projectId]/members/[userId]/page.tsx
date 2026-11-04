@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { getMembership, requireMember } from "@/features/auth/session";
 import { getMemberHistory } from "@/features/recommendations/history";
+import { formatManilaDate } from "@/lib/dates";
 import { prisma } from "@/lib/db";
 import { canViewHistory, ROLE_LABELS } from "@/lib/permissions";
 
@@ -15,7 +16,7 @@ export default async function MemberHistoryPage({ params }: { params: Promise<{ 
 
   const [person, history] = await Promise.all([
     prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { name: true } }),
-    getMemberHistory(userId),
+    getMemberHistory(userId, user.id, projectId),
   ]);
   const onTimePercent = history.doneTotal === 0 ? null : Math.round((history.doneOnTime * 100) / history.doneTotal);
   const mostInCategory = Math.max(1, ...history.perCategory.map((row) => row.count));
@@ -61,6 +62,44 @@ export default async function MemberHistoryPage({ params }: { params: Promise<{ 
                 </li>
               ))}
             </ul>
+          </section>
+          <section className="flex flex-col gap-4">
+            <h3 className="text-lg font-bold">Tasks finished</h3>
+            {history.finished.groups.map((group) => (
+              <div key={group.projectId} className="flex flex-col gap-1">
+                <h4 className="text-sm font-bold">{group.projectName}</h4>
+                <ul className="divide-y divide-border border-y border-border">
+                  {group.tasks.map((task) => (
+                    <li key={task.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 text-sm">
+                      <Link
+                        href={`/projects/${group.projectId}/board?task=${task.id}`}
+                        className="min-w-0 flex-1 basis-48 font-semibold underline-offset-4 hover:underline"
+                      >
+                        {task.title}
+                      </Link>
+                      <span className="text-xs text-muted-foreground">{task.categoryName}</span>
+                      {task.completedAt && (
+                        <span className="text-xs text-muted-foreground tabular-nums">{formatManilaDate(task.completedAt)}</span>
+                      )}
+                      <span
+                        className={
+                          task.onTime
+                            ? "rounded-md bg-tint px-2 py-0.5 text-xs font-semibold text-primary"
+                            : "rounded-md bg-brand-red/10 px-2 py-0.5 text-xs font-semibold text-brand-red"
+                        }
+                      >
+                        {task.onTime ? "On time" : "Late"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            {history.finished.hiddenCount > 0 && (
+              <p className="text-sm text-muted-foreground">
+                {history.finished.hiddenCount} more {history.finished.hiddenCount === 1 ? "task" : "tasks"} in projects you aren&apos;t part of.
+              </p>
+            )}
           </section>
         </>
       )}
