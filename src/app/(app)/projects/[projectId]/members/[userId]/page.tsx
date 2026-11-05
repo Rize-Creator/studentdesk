@@ -117,7 +117,6 @@ export default async function MemberHistoryPage({ params }: { params: Promise<{ 
           {history.memberships.map((row) => (
             <li key={row.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-3 text-sm">
               <span className="min-w-0 flex-1 font-semibold">{row.project.name}</span>
-              {row.committeeTitle && <span className="text-muted-foreground">{row.committeeTitle}</span>}
               <Badge variant="secondary">{ROLE_LABELS[row.role]}</Badge>
             </li>
           ))}

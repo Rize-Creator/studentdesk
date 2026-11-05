@@ -128,3 +128,16 @@ test("Edit, Delete and Remove buttons stand out", async ({ page }) => {
     }
   }
 });
+
+test("a member's history lists projects and roles without committee titles", async ({ page }) => {
+  test.setTimeout(120_000);
+  await signIn(page, /Lead:/);
+  await page.goto("/projects");
+  const href = await page.getByRole("link", { name: /Foundation Day 2026/ }).first().getAttribute("href");
+  await page.goto(`${href}/members`);
+  await page.getByRole("link", { name: "Ana Reyes" }).click();
+  await expect(page.getByRole("heading", { name: "Projects and roles" })).toBeVisible();
+  const section = page.locator("section").filter({ has: page.getByRole("heading", { name: "Projects and roles" }) });
+  await expect(section.getByText("Member", { exact: true }).first()).toBeVisible();
+  await expect(section.getByText(/Head|Treasurer|Secretary|Officer/)).toHaveCount(0);
+});
