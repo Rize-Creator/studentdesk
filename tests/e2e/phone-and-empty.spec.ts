@@ -24,6 +24,17 @@ test("guest pages fit on a phone", async ({ page }) => {
   await expectNoSidewaysScroll(page, "/sign-in");
 });
 
+test("the home page is honest about what's demo and explains suggestions", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText(/Demo version: sample data only/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "How suggestions work" })).toBeVisible();
+  for (const [factor, weight] of [["Experience in the category", "30%"], ["Current workload", "30%"], ["On-time record", "25%"], ["Committee role", "15%"]]) {
+    await expect(page.getByRole("listitem").filter({ hasText: factor }).filter({ hasText: weight })).toBeVisible();
+  }
+  await expect(page.getByRole("heading", { name: "Where the project stands" })).toBeVisible();
+  await expect(page.getByText(/ISO\/IEC 25010/)).toBeVisible();
+});
+
 for (const role of ["Lead", "Member", "Adviser"]) {
   test(`every screen fits on a phone as the ${role}`, async ({ page }) => {
     test.setTimeout(240_000);

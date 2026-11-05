@@ -17,6 +17,42 @@ const STAGES = [
   { name: "Done", cards: 4 },
 ];
 
+const PROBLEMS = [
+  { title: "Updates get lost", text: "Tasks and decisions end up scattered across group chats and spreadsheets, so it's hard to find the latest version." },
+  { title: "Work piles up on a few people", text: "Leads tend to ask the same reliable members, and it's hard to see who already has too much to do." },
+  { title: "Progress is hard to see", text: "Leads and advisers have to keep asking for updates to find out if an event or project is ready." },
+];
+
+const FACTORS = [
+  { name: "Experience in the category", weight: 30, text: "How many tasks like this they've finished." },
+  { name: "Current workload", weight: 30, text: "How many tasks they're handling right now." },
+  { name: "On-time record", weight: 25, text: "How often they finish by the deadline." },
+  { name: "Committee role", weight: 15, text: "Whether they've held a role in this category." },
+];
+
+const FEATURES = [
+  { name: "Task board", text: "Move tasks through five stages. Members move their own work, and leads approve it." },
+  { name: "Dashboard", text: "See progress, workload and overdue tasks, with a status of On Track, At Risk or Behind and the reasons why." },
+  { name: "Timeline", text: "See tasks grouped under their milestones, with a line marking today." },
+  { name: "Email reminders", text: "Get an email when you're assigned a task, when one is due soon, and when one is overdue." },
+  { name: "Readiness Report", text: "Leads and advisers get a daily summary by email, and can send one at any time." },
+  { name: "Member history", text: "Leads and advisers can check the tasks a member has finished and their on-time record." },
+];
+
+const WORKING_NOW = [
+  "Projects, tasks and milestones",
+  "Task board, dashboards and timeline",
+  "Suggestions with reasons",
+  "Email notifications and daily reports",
+];
+
+const STILL_TO_COME = [
+  "Interviews with student leaders, members and advisers",
+  "Sign-in with the CCDI LMS",
+  "A Data Privacy Act review before any real student data is used",
+  "Evaluation using ISO/IEC 25010",
+];
+
 const ROLES = [
   { who: "Project leads", what: "Create tasks, see who to assign and why, and approve finished work." },
   { who: "Committee members", what: "See what's assigned to you, move it along the board, and submit your deliverable." },
@@ -50,6 +86,9 @@ export default async function GuestHomePage() {
             >
               Sign in with LMS
             </Link>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/80">
+              Demo version: sample data only. The CCDI LMS isn&apos;t connected yet, so you&apos;ll sign in with a demo account.
+            </p>
           </div>
 
           <figure className="rounded-2xl bg-card p-5 text-foreground shadow-2xl sm:p-7">
@@ -75,7 +114,49 @@ export default async function GuestHomePage() {
       </section>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-14 sm:px-8 sm:py-20">
-        <section aria-labelledby="board-heading" className="grid gap-8 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
+        <section aria-labelledby="problem-heading">
+          <h2 id="problem-heading" className="max-w-2xl text-3xl font-bold">Running a student event shouldn&apos;t depend on who remembers what</h2>
+          <ul className="mt-8 grid gap-8 md:grid-cols-3">
+            {PROBLEMS.map((problem) => (
+              <li key={problem.title} className="border-t-2 border-brand-red pt-4">
+                <h3 className="font-bold">{problem.title}</h3>
+                <p className="mt-2 leading-relaxed text-muted-foreground">{problem.text}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section aria-labelledby="suggestions-heading" className="mt-16 grid gap-8 sm:mt-24 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
+          <div>
+            <h2 id="suggestions-heading" className="text-3xl font-bold">How suggestions work</h2>
+            <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">
+              StudentDesk scores each member from their records and shows the top three, with the reasons for each. It only
+              suggests, and the lead makes the final choice.
+            </p>
+            <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">
+              Anyone with 5 or more active tasks is placed below everyone else, so the same people don&apos;t keep getting more work.
+            </p>
+          </div>
+          <div>
+            <ul className="flex flex-col gap-5">
+              {FACTORS.map((factor) => (
+                <li key={factor.name}>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <h3 className="font-bold">{factor.name}</h3>
+                    <span className="font-heading text-xl font-bold tabular-nums">{factor.weight}%</span>
+                  </div>
+                  <div aria-hidden className="mt-1.5 h-2 rounded-full bg-secondary">
+                    <div className="h-full rounded-full bg-primary" style={{ width: `${factor.weight}%` }} />
+                  </div>
+                  <p className="mt-1.5 text-sm text-muted-foreground">{factor.text}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 text-sm text-muted-foreground">These are draft weights, to be finalized with leads and advisers.</p>
+          </div>
+        </section>
+
+        <section aria-labelledby="board-heading" className="mt-16 grid gap-8 sm:mt-24 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
           <div>
             <h2 id="board-heading" className="text-3xl font-bold">Everything your group chat keeps losing</h2>
             <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">
@@ -97,6 +178,18 @@ export default async function GuestHomePage() {
           </ol>
         </section>
 
+        <section aria-labelledby="features-heading" className="mt-16 sm:mt-24">
+          <h2 id="features-heading" className="text-3xl font-bold">What&apos;s inside</h2>
+          <dl className="mt-8 grid gap-x-10 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map((feature) => (
+              <div key={feature.name}>
+                <dt className="font-bold">{feature.name}</dt>
+                <dd className="mt-1 leading-relaxed text-muted-foreground">{feature.text}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
         <section aria-labelledby="roles-heading" className="mt-16 sm:mt-24">
           <h2 id="roles-heading" className="text-3xl font-bold">What you can do depends on your role</h2>
           <dl className="mt-6 divide-y divide-border border-y border-border">
@@ -112,16 +205,38 @@ export default async function GuestHomePage() {
         <section aria-labelledby="start-heading" className="mt-16 sm:mt-24">
           <h2 id="start-heading" className="text-3xl font-bold">How to get started</h2>
           <ol className="mt-6 grid list-inside list-decimal gap-3 leading-relaxed marker:font-heading marker:font-bold">
-            <li>Sign in with your CCDI LMS account.</li>
-            <li>Create a project for your event or capstone, or open one you&apos;ve been added to.</li>
+            <li>Open the sign-in page and choose a demo account: Lead, Member or Adviser.</li>
+            <li>Open one of the sample projects, or create a project of your own.</li>
             <li>Add your team, then create your first task.</li>
           </ol>
+          <p className="mt-4 max-w-2xl text-sm text-muted-foreground">Once the LMS is connected, you&apos;ll sign in with your CCDI account instead.</p>
+        </section>
+
+        <section aria-labelledby="status-heading" className="mt-16 rounded-2xl bg-tint p-6 sm:mt-24 sm:p-8">
+          <h2 id="status-heading" className="text-3xl font-bold">Where the project stands</h2>
+          <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
+            This is our first working prototype, built using Rapid Application Development. Feedback from users will shape the next version.
+          </p>
+          <div className="mt-6 grid gap-8 md:grid-cols-2">
+            <div>
+              <h3 className="font-bold">Working now</h3>
+              <ul className="mt-2 list-inside list-disc space-y-1.5 leading-relaxed">
+                {WORKING_NOW.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold">Still to come</h3>
+              <ul className="mt-2 list-inside list-disc space-y-1.5 leading-relaxed">
+                {STILL_TO_COME.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </div>
+          </div>
         </section>
       </main>
 
       <footer className="border-t border-border">
         <p className="mx-auto w-full max-w-6xl px-4 py-6 text-sm text-muted-foreground sm:px-8">
-          StudentDesk is a capstone project for Computer Communication Development Institute, Sorsogon City.
+          StudentDesk is a capstone project for Computer Communication Development Institute, Sorsogon City, A.Y. 2026-2027.
         </p>
       </footer>
     </div>
