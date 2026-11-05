@@ -27,7 +27,7 @@ const FACTORS = [
   { name: "Experience in the category", weight: 30, text: "How many tasks like this they've finished." },
   { name: "Current workload", weight: 30, text: "How many tasks they're handling right now." },
   { name: "On-time record", weight: 25, text: "How often they finish by the deadline." },
-  { name: "Committee role", weight: 15, text: "Whether they've held a role in this category." },
+  { name: "Role", weight: 15, text: "Whether they've held a role in this category." },
 ];
 
 const FEATURES = [
