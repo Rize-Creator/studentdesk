@@ -64,7 +64,7 @@ function EditableRow({ projectId, member }: { projectId: string; member: MemberR
           </Button>
         )}
         <Button
-          variant="ghost"
+          variant="destructive"
           size="sm"
           disabled={pending}
           onClick={() => {

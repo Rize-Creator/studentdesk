@@ -118,9 +118,9 @@ export function MilestonesManager({
                       <Button variant="ghost" size="sm" onClick={() => run(() => setMilestoneComplete(projectId, milestone.id, !milestone.markedComplete), milestone.markedComplete ? "Marked not complete" : "Marked complete")}>
                         {milestone.markedComplete ? "Mark not complete" : "Mark complete"}
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setEditingId(milestone.id)}>Edit</Button>
+                      <Button variant="edit" size="sm" onClick={() => setEditingId(milestone.id)}>Edit</Button>
                       <Button
-                        variant="ghost"
+                        variant="destructive"
                         size="sm"
                         onClick={() => {
                           if (window.confirm(`Delete "${milestone.title}"? Its tasks stay on the board.`)) {

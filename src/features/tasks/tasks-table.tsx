@@ -107,9 +107,9 @@ export function TasksTable({
                 <TableCell className={cn("tabular-nums", task.status !== "DONE" && task.deadline.getTime() < now.getTime() && "font-bold text-brand-red")}>{formatManilaDate(task.deadline)}</TableCell>
                 {canManage && (
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => setEditing(task)}>Edit</Button>
+                    <Button variant="edit" size="sm" onClick={() => setEditing(task)}>Edit</Button>
                     {task.status !== "DONE" && (
-                      <Button variant="ghost" size="sm" onClick={() => remove(task)}>Delete</Button>
+                      <Button variant="destructive" size="sm" onClick={() => remove(task)}>Delete</Button>
                     )}
                   </TableCell>
                 )}

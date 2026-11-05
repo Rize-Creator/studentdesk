@@ -106,3 +106,25 @@ test("the Members tab has no committee fields, and changing a role keeps any sav
     db.deleteProject(projectId);
   }
 });
+
+test("Edit, Delete and Remove buttons stand out", async ({ page }) => {
+  test.setTimeout(120_000);
+  const style = (name: string) =>
+    page.getByRole("button", { name, exact: true }).first().evaluate((el) => {
+      const css = getComputedStyle(el);
+      return { background: css.backgroundColor };
+    });
+  const clear = "rgba(0, 0, 0, 0)";
+
+  await signIn(page, /Lead:/);
+  await page.goto("/projects");
+  const href = await page.getByRole("link", { name: /Foundation Day 2026/ }).first().getAttribute("href");
+
+  for (const [tab, buttons] of [["/tasks", ["Edit", "Delete"]], ["/members", ["Remove"]], ["/milestones", ["Edit", "Delete"]]] as const) {
+    await page.goto(`${href}${tab}`);
+    for (const name of buttons) {
+      const found = await style(name);
+      expect(found.background, `${name} on ${tab}`).not.toBe(clear);
+    }
+  }
+});

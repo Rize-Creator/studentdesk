@@ -195,8 +195,8 @@ export function TaskDetail({
             )}
             {canManage && (
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setEditing(true)}>Edit task</Button>
-                {task.status !== "DONE" && <Button variant="ghost" size="sm" onClick={remove}>Delete task</Button>}
+                <Button variant="edit" size="sm" onClick={() => setEditing(true)}>Edit task</Button>
+                {task.status !== "DONE" && <Button variant="destructive" size="sm" onClick={remove}>Delete task</Button>}
               </div>
             )}
             <section className="flex flex-col gap-2">
