@@ -6,11 +6,12 @@ import { can } from "@/lib/permissions";
 
 export default async function TasksPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const { member, project } = await requireMember(projectId);
+  const { user, member, project } = await requireMember(projectId);
   const [tasks, options] = await Promise.all([listTasks(projectId), loadTaskFormOptions(projectId)]);
   return (
     <TasksTable
       projectId={projectId}
+      viewerId={user.id}
       canManage={can(member.role, "tasks:manage") && project.status === "ACTIVE"}
       options={options}
       tasks={tasks.map((task) => ({
