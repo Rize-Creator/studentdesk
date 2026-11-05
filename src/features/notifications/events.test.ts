@@ -5,7 +5,7 @@ import { draftAssignment, draftMove } from "./events";
 const project = { id: "p1", name: "Foundation Day" };
 const maria = { id: "maria", name: "Maria" };
 const juan = { id: "juan", name: "Juan" };
-const task = { id: "t1", title: "Poster", assigneeId: "juan", deliverableUrl: null, milestoneId: null };
+const task = { id: "t1", title: "Poster", assigneeId: "juan", deliverableUrl: null, deliverableNote: null, milestoneId: null };
 
 function fakeClient(options: { unfinished?: number; completedAt?: Date | null } = {}) {
   return {
@@ -26,6 +26,11 @@ describe("draftMove", () => {
     const drafts = await draftMove(fakeClient(), { ...move, from: "IN_PROGRESS", to: "REVIEW", actor: juan });
     expect(to(drafts)).toEqual(["maria"]);
     expect(drafts[0].type).toBe("TASK_IN_REVIEW");
+  });
+
+  it("passes the member's note on to the lead", async () => {
+    const drafts = await draftMove(fakeClient(), { ...move, task: { ...task, deliverableNote: "Check page 2" }, from: "IN_PROGRESS", to: "REVIEW", actor: juan });
+    expect(drafts[0].body).toContain("Check page 2");
   });
 
   it("doesn't email a lead about their own move to Review", async () => {

@@ -65,7 +65,7 @@ export async function draftMove(
     note: string | null;
     actor: Actor;
     project: ProjectRef;
-    task: { id: string; title: string; assigneeId: string | null; deliverableUrl: string | null; milestoneId: string | null };
+    task: { id: string; title: string; assigneeId: string | null; deliverableUrl: string | null; deliverableNote: string | null; milestoneId: string | null };
   },
 ): Promise<NotificationDraft[]> {
   const { historyId, from, to, note, actor, project, task } = input;
@@ -74,7 +74,7 @@ export async function draftMove(
 
   if (type === "TASK_IN_REVIEW") {
     const leads = await client.projectMember.findMany({ where: { projectId: project.id, role: "LEAD" }, select: { userId: true } });
-    const email = taskInReviewEmail({ ...base(project), taskTitle: task.title, memberName: actor.name, deliverableUrl: task.deliverableUrl });
+    const email = taskInReviewEmail({ ...base(project), taskTitle: task.title, memberName: actor.name, deliverableUrl: task.deliverableUrl, deliverableNote: task.deliverableNote });
     for (const recipientId of withoutActor(leads.map((lead) => lead.userId), actor.id)) {
       drafts.push({ recipientId, projectId: project.id, taskId: task.id, type, dedupeKey: dedupeKey(type, historyId, recipientId), ...email });
     }

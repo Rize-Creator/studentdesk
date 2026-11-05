@@ -37,13 +37,30 @@ describe("task emails", () => {
   });
 
   it("includes the deliverable link when there is one", () => {
-    const { body } = taskInReviewEmail({ ...base, taskTitle: "Poster", memberName: "Paolo", deliverableUrl: "https://drive.google.com/x" });
+    const { body } = taskInReviewEmail({ ...base, taskTitle: "Poster", memberName: "Paolo", deliverableUrl: "https://drive.google.com/x", deliverableNote: null });
     expect(body).toContain('href="https://drive.google.com/x"');
   });
 
   it("leaves out the link when there isn't one", () => {
-    const { body } = taskInReviewEmail({ ...base, taskTitle: "Poster", memberName: "Paolo", deliverableUrl: null });
+    const { body } = taskInReviewEmail({ ...base, taskTitle: "Poster", memberName: "Paolo", deliverableUrl: null, deliverableNote: null });
     expect(body).not.toContain("drive.google.com");
+  });
+
+  it("includes the member's note, safely, when they wrote one", () => {
+    const { body } = taskInReviewEmail({ ...base, taskTitle: "Poster", memberName: "Paolo", deliverableUrl: null, deliverableNote: "Page 2 & 3 <changed>" });
+    expect(body).toContain("Note: Page 2 &amp; 3 &lt;changed&gt;");
+  });
+
+  it("leaves out the note label when there's no note", () => {
+    const { body } = taskInReviewEmail({ ...base, taskTitle: "Poster", memberName: "Paolo", deliverableUrl: null, deliverableNote: null });
+    expect(body).not.toContain("Note:");
+  });
+
+  it("keeps the line breaks people type in notes", () => {
+    const review = taskInReviewEmail({ ...base, taskTitle: "Poster", memberName: "Paolo", deliverableUrl: null, deliverableNote: "One\nTwo" });
+    const returned = taskReturnedEmail({ ...base, taskTitle: "Poster", leadName: "Maria", note: "One\nTwo" });
+    expect(review.body).toContain("white-space:pre-wrap");
+    expect(returned.body).toContain("white-space:pre-wrap");
   });
 });
 

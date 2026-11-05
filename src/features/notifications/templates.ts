@@ -27,6 +27,8 @@ ${content}
 
 const paragraph = (text: string) => `<p style="margin:0 0 10px">${text}</p>`;
 const safe = escapeHtml;
+// Keeps the line breaks people type.
+const noteParagraph = (note: string) => `<p style="margin:0 0 10px;white-space:pre-wrap">Note: ${safe(note)}</p>`;
 
 export function taskAssignedEmail(data: Base & { taskTitle: string; deadline: Date; assignerName: string }) {
   return {
@@ -41,15 +43,16 @@ export function taskAssignedEmail(data: Base & { taskTitle: string; deadline: Da
   };
 }
 
-export function taskInReviewEmail(data: Base & { taskTitle: string; memberName: string; deliverableUrl: string | null }) {
+export function taskInReviewEmail(data: Base & { taskTitle: string; memberName: string; deliverableUrl: string | null; deliverableNote: string | null }) {
   const link = data.deliverableUrl
     ? paragraph(`Deliverable: <a href="${safe(data.deliverableUrl)}">${safe(data.deliverableUrl)}</a>`)
     : "";
+  const note = data.deliverableNote ? noteParagraph(data.deliverableNote) : "";
   return {
     subject: `Ready for review: ${data.taskTitle}`,
     body: layout(
       "A task is ready for review",
-      paragraph(`${safe(data.memberName)} moved <strong>${safe(data.taskTitle)}</strong> to Review in ${safe(data.projectName)}.`) + link,
+      paragraph(`${safe(data.memberName)} moved <strong>${safe(data.taskTitle)}</strong> to Review in ${safe(data.projectName)}.`) + link + note,
       boardUrl(data),
       "Review it",
     ),
@@ -62,7 +65,7 @@ export function taskReturnedEmail(data: Base & { taskTitle: string; leadName: st
     body: layout(
       "A task needs more work",
       paragraph(`${safe(data.leadName)} sent back <strong>${safe(data.taskTitle)}</strong> in ${safe(data.projectName)}.`) +
-        (data.note ? paragraph(`Note: ${safe(data.note)}`) : ""),
+        (data.note ? noteParagraph(data.note) : ""),
       boardUrl(data),
       "Open the board",
     ),
