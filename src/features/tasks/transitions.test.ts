@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkMove, isSendBack, type MoveInput } from "./transitions";
+import { checkMove, isSendBack, type MoveInput, statusAfterAssigning } from "./transitions";
 
 const base: MoveInput = {
   role: "MEMBER",
@@ -91,5 +91,21 @@ describe("isSendBack", () => {
     expect(isSendBack("REVIEW", "DONE")).toBe(false);
     expect(isSendBack("REVIEW", "REVIEW")).toBe(false);
     expect(isSendBack("TODO", "IN_PROGRESS")).toBe(false);
+  });
+});
+
+describe("statusAfterAssigning", () => {
+  it("moves a Backlog task to To Do when it gets an assignee", () => {
+    expect(statusAfterAssigning("BACKLOG", "juan")).toBe("TODO");
+  });
+
+  it("leaves a Backlog task alone while it has no assignee", () => {
+    expect(statusAfterAssigning("BACKLOG", null)).toBe("BACKLOG");
+  });
+
+  it("leaves every other stage alone", () => {
+    for (const status of ["TODO", "IN_PROGRESS", "REVIEW", "DONE"] as const) {
+      expect(statusAfterAssigning(status, "juan")).toBe(status);
+    }
   });
 });

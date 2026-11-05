@@ -38,6 +38,11 @@ const MESSAGES: Record<MoveDenied, string> = {
 
 const deny = (reason: MoveDenied) => ({ ok: false as const, reason, message: MESSAGES[reason] });
 
+// A Backlog card has nobody working on it, so giving it an assignee makes it their To Do.
+export function statusAfterAssigning(status: TaskStatus, assigneeId: string | null): TaskStatus {
+  return status === "BACKLOG" && assigneeId ? "TODO" : status;
+}
+
 export function isSendBack(from: TaskStatus, to: TaskStatus): boolean {
   return from === "REVIEW" && to !== "REVIEW" && to !== "DONE";
 }

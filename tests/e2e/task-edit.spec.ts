@@ -1,0 +1,76 @@
+import { expect, test, type Page } from "@playwright/test";
+import { db } from "./db";
+
+const POLL = { timeout: 30_000 };
+
+async function signIn(page: Page, quickPick: RegExp) {
+  await page.goto("/sign-in");
+  await page.getByRole("button", { name: quickPick }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await page.waitForURL("**/home");
+}
+
+test("editing a Backlog task to assign it shows the new details and lets the assignee move it", async ({ page }) => {
+  test.setTimeout(240_000);
+  const taskTitle = `E2E backlog ${Date.now()}`;
+
+  await signIn(page, /Lead:/);
+  await page.goto("/projects/new");
+  await page.getByLabel("Project name").fill(`E2E edit ${Date.now()}`);
+  await page.getByLabel("Start date").fill("2026-11-01");
+  await page.getByLabel("Target date").fill("2027-01-31");
+  await page.getByRole("button", { name: "Create project" }).click();
+  await page.waitForURL(/\/projects\/(?!new)[^/]+$/);
+  const projectId = new URL(page.url()).pathname.split("/").at(-1)!;
+
+  try {
+    await page.goto(`/projects/${projectId}/members`);
+    await page.getByLabel("Find a person").fill("Juan");
+    await page.getByRole("button", { name: /Add Juan Dela Cruz/ }).click();
+    await expect(page.getByRole("cell", { name: "Juan Dela Cruz" })).toBeVisible();
+
+    // No assignee, so it starts in Backlog.
+    await page.goto(`/projects/${projectId}/board`);
+    await page.getByRole("button", { name: "New task" }).click();
+    await page.getByLabel("Title").fill(taskTitle);
+    await page.getByLabel("Category").selectOption({ label: "Logistics" });
+    await page.getByLabel("Deadline").fill("2027-01-15");
+    await page.getByRole("button", { name: "Save task" }).click();
+    await expect(page.getByText(taskTitle)).toBeVisible();
+    const task = db.findTask(projectId, taskTitle);
+    expect(task.status).toBe("BACKLOG");
+
+    // The lead edits it from the task's dialog.
+    await page.goto(`/projects/${projectId}/board?task=${task.id}`);
+    await page.getByRole("button", { name: "Edit task" }).click();
+    await page.getByLabel("Deadline").fill("2027-01-20");
+    await page.getByLabel("Assignee").selectOption({ label: "Juan Dela Cruz" });
+    await page.getByRole("button", { name: "Save task" }).click();
+
+    // The dialog shows what was just saved, without closing and reopening it.
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByText("Juan Dela Cruz").first()).toBeVisible();
+    await expect(dialog.getByText("Jan 20, 2027")).toBeVisible();
+
+    // An assigned task belongs in To Do, the same as when it's created with an assignee.
+    expect(db.getTask(task.id).status).toBe("TODO");
+    expect(db.historyOf(task.id)).toEqual(["BACKLOG", "TODO"]);
+    await expect.poll(() => db.countNotifications(task.id, "TASK_ASSIGNED"), POLL).toBe(1);
+
+    // Editing again starts from the saved values, so it can't undo the first edit.
+    await dialog.getByRole("button", { name: "Edit task" }).click();
+    await expect(page.getByLabel("Deadline")).toHaveValue("2027-01-20");
+    await expect(page.getByLabel("Assignee").locator("option:checked")).toHaveText("Juan Dela Cruz");
+
+    // The assignee can move it.
+    await page.goto(`/projects/${projectId}/board`);
+    await page.getByRole("button", { name: "Sign out" }).click();
+    await page.waitForURL("**/");
+    await signIn(page, /Member:/);
+    await page.goto(`/projects/${projectId}/board?task=${task.id}`);
+    await page.getByLabel("Status").selectOption({ label: "In Progress" });
+    await expect.poll(() => db.getTask(task.id).status, POLL).toBe("IN_PROGRESS");
+  } finally {
+    db.deleteProject(projectId);
+  }
+});

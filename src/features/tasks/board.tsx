@@ -154,7 +154,11 @@ export function Board({
       if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
       toast.error(error.message);
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+      // The open task's history may have been read before the move finished saving.
+      queryClient.invalidateQueries({ queryKey: ["task"] });
+    },
   });
 
   // Someone else's move also changes the summary in the side panel, so refresh it when stages change.
@@ -217,6 +221,7 @@ export function Board({
 
   const afterChange = () => {
     queryClient.invalidateQueries({ queryKey });
+    queryClient.invalidateQueries({ queryKey: ["task"] });
     router.refresh();
   };
 

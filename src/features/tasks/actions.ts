@@ -6,7 +6,7 @@ import { draftAssignment, draftMove } from "@/features/notifications/events";
 import { sendAfterResponse } from "@/features/notifications/mailer";
 import { queueNotifications } from "@/features/notifications/queue";
 import { positionAtEnd, positionBetween } from "@/features/tasks/positions";
-import { checkMove } from "@/features/tasks/transitions";
+import { checkMove, statusAfterAssigning } from "@/features/tasks/transitions";
 import { fail, ok, type ActionResult } from "@/lib/action-result";
 import { endOfManilaDay } from "@/lib/dates";
 import { prisma } from "@/lib/db";
@@ -95,7 +95,22 @@ export async function updateTask(projectId: string, taskId: string, input: unkno
   }
 
   const emailIds = await prisma.$transaction(async (tx) => {
-    const updated = await tx.task.update({ where: { id: taskId }, data: { ...data, deadline: endOfManilaDay(deadline) } });
+    const status = statusAfterAssigning(current.status, data.assigneeId);
+    const movesStage = status !== current.status;
+    const last = movesStage ? await tx.task.aggregate({ where: { projectId, status }, _max: { position: true } }) : null;
+    const updated = await tx.task.update({
+      where: { id: taskId },
+      data: {
+        ...data,
+        deadline: endOfManilaDay(deadline),
+        ...(last ? { status, position: positionAtEnd(last._max.position) } : {}),
+      },
+    });
+    if (movesStage) {
+      await tx.taskStatusHistory.create({
+        data: { taskId, fromStatus: current.status, toStatus: status, changedById: auth.user.id },
+      });
+    }
     if (!data.assigneeId || data.assigneeId === current.assigneeId) return [];
     const assignment = await tx.taskAssignment.create({
       data: { taskId, assigneeId: data.assigneeId, assignedById: auth.user.id, recommendedRank: recommendedRank ?? null },
