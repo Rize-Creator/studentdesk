@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { CalendarDays } from "lucide-react";
 import Link from "next/link";
 import { PriorityChip } from "@/components/priority-chip";
+import { StageBadge } from "@/components/stage-badge";
 import { Badge } from "@/components/ui/badge";
 import type { MyWork } from "@/features/metrics/queries";
-import { STATUS_LABELS } from "@/features/tasks/transitions";
 import { formatManilaDate } from "@/lib/dates";
 import { ROLE_LABELS } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ function TaskRows({ tasks }: { tasks: MyWork["tasks"] }) {
               </span>
             </span>
             <PriorityChip priority={task.priority} />
-            <Badge variant="secondary">{STATUS_LABELS[task.status]}</Badge>
+            <StageBadge status={task.status} />
             <span className={cn("flex w-28 items-center gap-1 text-xs tabular-nums", task.overdue ? "font-bold text-brand-red" : "text-muted-foreground")}>
               <CalendarDays aria-hidden className="size-3.5" />
               {formatManilaDate(new Date(task.deadline))}

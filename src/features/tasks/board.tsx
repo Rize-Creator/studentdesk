@@ -28,6 +28,7 @@ import { dropTarget, positionAtEnd, positionBetween } from "@/features/tasks/pos
 import { moveTask } from "@/features/tasks/actions";
 import type { BoardTask } from "@/features/tasks/queries";
 import { TaskDetail } from "@/features/tasks/task-detail";
+import { STAGE_STYLES } from "@/features/tasks/stage-styles";
 import { TaskForm, type TaskFormOptions } from "@/features/tasks/task-form";
 import { STATUS_LABELS, TASK_STATUSES, checkMove, type TaskStatus } from "@/features/tasks/transitions";
 import { safeCall } from "@/lib/action-result";
@@ -82,13 +83,13 @@ function Column({
       className="flex w-72 shrink-0 snap-start flex-col gap-2 lg:w-auto lg:min-w-44 lg:flex-1 lg:shrink"
     >
       <h2 className="flex items-center gap-2 px-1 text-sm font-bold">
-        <Icon aria-hidden className={cn("size-4", status === "DONE" ? "text-primary" : "text-muted-foreground")} />
+        <Icon aria-hidden className={cn("size-4", STAGE_STYLES[status].icon)} />
         {STATUS_LABELS[status]}
         <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-xs font-semibold tabular-nums">{tasks.length}</span>
       </h2>
       <div
         ref={setNodeRef}
-        className={cn("min-h-40 flex-1 rounded-2xl bg-muted p-2 transition-colors", isOver && "bg-tint")}
+        className={cn("min-h-40 flex-1 rounded-2xl border-t-4 bg-muted p-2 transition-colors", STAGE_STYLES[status].edge, isOver && "bg-tint")}
       >
         <SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
           <ul className="flex flex-col gap-2">{children}</ul>

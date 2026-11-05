@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PriorityChip } from "@/components/priority-chip";
-import { Badge } from "@/components/ui/badge";
+import { StageBadge } from "@/components/stage-badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,7 +12,7 @@ import { deleteTask } from "@/features/tasks/actions";
 import { TaskFilterBar } from "@/features/tasks/task-filter-bar";
 import { EMPTY_FILTERS, filterTasks } from "@/features/tasks/task-filters";
 import { TaskForm, type EditableTask, type TaskFormOptions } from "@/features/tasks/task-form";
-import { STATUS_LABELS, type TaskStatus } from "@/features/tasks/transitions";
+import type { TaskStatus } from "@/features/tasks/transitions";
 import { safeCall } from "@/lib/action-result";
 import { formatManilaDate } from "@/lib/dates";
 import { cn } from "@/lib/utils";
@@ -102,7 +102,7 @@ export function TasksTable({
                 <TableCell className="font-bold whitespace-normal">{task.title}</TableCell>
                 <TableCell>{task.categoryName}</TableCell>
                 <TableCell><PriorityChip priority={task.priority} /></TableCell>
-                <TableCell><Badge variant="secondary">{STATUS_LABELS[task.status]}</Badge></TableCell>
+                <TableCell><StageBadge status={task.status} /></TableCell>
                 <TableCell>{task.assigneeName ?? "Unassigned"}</TableCell>
                 <TableCell className={cn("tabular-nums", task.status !== "DONE" && task.deadline.getTime() < now.getTime() && "font-bold text-brand-red")}>{formatManilaDate(task.deadline)}</TableCell>
                 {canManage && (

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Field, selectClass } from "@/components/field";
 import { PriorityChip } from "@/components/priority-chip";
+import { StageBadge } from "@/components/stage-badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -191,7 +192,7 @@ export function TaskDetail({
                 </select>
               </Field>
             ) : (
-              <p className="text-sm"><span className="text-muted-foreground">Status: </span>{STATUS_LABELS[task.status]}</p>
+              <p className="flex items-center gap-2 text-sm"><span className="text-muted-foreground">Status:</span><StageBadge status={task.status} /></p>
             )}
             {canManage && (
               <div className="flex gap-2">
