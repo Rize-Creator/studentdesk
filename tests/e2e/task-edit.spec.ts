@@ -74,3 +74,35 @@ test("editing a Backlog task to assign it shows the new details and lets the ass
     db.deleteProject(projectId);
   }
 });
+
+test("the Members tab has no committee fields, and changing a role keeps any saved committee", async ({ page }) => {
+  test.setTimeout(240_000);
+  await signIn(page, /Lead:/);
+  await page.goto("/projects/new");
+  await page.getByLabel("Project name").fill(`E2E members ${Date.now()}`);
+  await page.getByLabel("Start date").fill("2026-11-01");
+  await page.getByLabel("Target date").fill("2027-01-31");
+  await page.getByRole("button", { name: "Create project" }).click();
+  await page.waitForURL(/\/projects\/(?!new)[^/]+$/);
+  const projectId = new URL(page.url()).pathname.split("/").at(-1)!;
+
+  try {
+    await page.goto(`/projects/${projectId}/members`);
+    await page.getByLabel("Find a person").fill("Juan");
+    await page.getByRole("button", { name: /Add Juan Dela Cruz/ }).click();
+    await expect(page.getByRole("cell", { name: "Juan Dela Cruz" })).toBeVisible();
+
+    await expect(page.getByRole("columnheader", { name: "Committee" })).toHaveCount(0);
+    await expect(page.getByRole("columnheader", { name: "Title" })).toHaveCount(0);
+
+    // Sample projects already have committee roles, and suggestions use them.
+    db.setCommittee(projectId, "Juan Dela Cruz", "category-logistics", "Logistics Head");
+    await page.reload();
+    await page.getByLabel("Role of Juan Dela Cruz").selectOption({ label: "Adviser" });
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect.poll(() => db.getMember(projectId, "Juan Dela Cruz").role, POLL).toBe("ADVISER");
+    expect(db.getMember(projectId, "Juan Dela Cruz")).toMatchObject({ committeeCategoryId: "category-logistics", committeeTitle: "Logistics Head" });
+  } finally {
+    db.deleteProject(projectId);
+  }
+});

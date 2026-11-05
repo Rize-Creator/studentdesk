@@ -22,6 +22,18 @@ const commands: Record<string, () => Promise<unknown>> = {
     const rows = await prisma.taskStatusHistory.findMany({ where: { taskId: args[0] }, orderBy: { changedAt: "asc" } });
     return rows.map((row) => row.toStatus);
   },
+  async setCommittee() {
+    const [projectId, name, committeeCategoryId, committeeTitle] = args;
+    const user = await prisma.user.findFirstOrThrow({ where: { name } });
+    await prisma.projectMember.update({ where: { projectId_userId: { projectId, userId: user.id } }, data: { committeeCategoryId, committeeTitle } });
+    return true;
+  },
+  async getMember() {
+    const [projectId, name] = args;
+    const user = await prisma.user.findFirstOrThrow({ where: { name } });
+    const member = await prisma.projectMember.findUniqueOrThrow({ where: { projectId_userId: { projectId, userId: user.id } } });
+    return { role: member.role, committeeCategoryId: member.committeeCategoryId, committeeTitle: member.committeeTitle };
+  },
   async deleteProject() {
     await prisma.project.delete({ where: { id: args[0] } });
     return true;

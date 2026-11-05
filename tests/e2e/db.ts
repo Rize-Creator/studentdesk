@@ -15,5 +15,9 @@ export const db = {
   getTask: (taskId: string) => run<{ status: string; deliverableUrl: string | null }>("getTask", taskId),
   countNotifications: (taskId: string, type: string) => run<number>("countNotifications", taskId, type),
   historyOf: (taskId: string) => run<string[]>("historyOf", taskId),
+  setCommittee: (projectId: string, name: string, categoryId: string, title: string) =>
+    run<boolean>("setCommittee", projectId, name, categoryId, title),
+  getMember: (projectId: string, name: string) =>
+    run<{ role: string; committeeCategoryId: string | null; committeeTitle: string | null }>("getMember", projectId, name),
   deleteProject: (projectId: string) => run<boolean>("deleteProject", projectId),
 };

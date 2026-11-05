@@ -31,8 +31,9 @@ test("the home page is honest about what's demo and explains suggestions", async
   for (const [factor, weight] of [["Experience in the category", "30%"], ["Current workload", "30%"], ["On-time record", "25%"], ["Committee role", "15%"]]) {
     await expect(page.getByRole("listitem").filter({ hasText: factor }).filter({ hasText: weight })).toBeVisible();
   }
-  await expect(page.getByRole("heading", { name: "Where the project stands" })).toBeVisible();
-  await expect(page.getByText(/ISO\/IEC 25010/)).toBeVisible();
+  await expect(page.getByRole("term").filter({ hasText: /^Members$/ })).toBeVisible();
+  await expect(page.getByText("Committee members")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Where the project stands" })).toHaveCount(0);
 });
 
 for (const role of ["Lead", "Member", "Adviser"]) {

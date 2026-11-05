@@ -19,19 +19,15 @@ export type MemberRow = {
   role: ProjectRole;
   committeeCategoryId: string | null;
   committeeTitle: string | null;
-  committeeCategoryName: string | null;
 };
 
-type Category = { id: string; name: string };
 const ROLES: ProjectRole[] = ["LEAD", "MEMBER", "ADVISER"];
 
-function EditableRow({ projectId, member, categories }: { projectId: string; member: MemberRow; categories: Category[] }) {
+function EditableRow({ projectId, member }: { projectId: string; member: MemberRow }) {
   const router = useRouter();
   const [role, setRole] = useState(member.role);
-  const [categoryId, setCategoryId] = useState(member.committeeCategoryId ?? "");
-  const [title, setTitle] = useState(member.committeeTitle ?? "");
   const [pending, setPending] = useState(false);
-  const dirty = role !== member.role || categoryId !== (member.committeeCategoryId ?? "") || title !== (member.committeeTitle ?? "");
+  const dirty = role !== member.role;
 
   async function run(action: () => Promise<{ ok: true } | { ok: false; message: string }>, done: string) {
     setPending(true);
@@ -56,21 +52,13 @@ function EditableRow({ projectId, member, categories }: { projectId: string; mem
           {ROLES.map((option) => <option key={option} value={option}>{ROLE_LABELS[option]}</option>)}
         </select>
       </TableCell>
-      <TableCell>
-        <select aria-label={`Committee of ${member.name}`} className={selectClass} value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-          <option value="">None</option>
-          {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-        </select>
-      </TableCell>
-      <TableCell>
-        <Input aria-label={`Committee title of ${member.name}`} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Logistics Head" />
-      </TableCell>
       <TableCell className="text-right whitespace-nowrap">
         {dirty && (
           <Button
             size="sm"
             disabled={pending}
-            onClick={() => run(() => safeCall(() => updateMember(projectId, { userId: member.userId, role, committeeCategoryId: categoryId, committeeTitle: title })), "Member saved")}
+            // Keeps any committee already saved, because suggestions use it.
+            onClick={() => run(() => safeCall(() => updateMember(projectId, { userId: member.userId, role, committeeCategoryId: member.committeeCategoryId ?? "", committeeTitle: member.committeeTitle ?? "" })), "Member saved")}
           >
             Save
           </Button>
@@ -153,14 +141,12 @@ function AddPerson({ projectId }: { projectId: string }) {
 export function MembersManager({
   projectId,
   members,
-  categories,
   canManage,
   viewerId,
   viewerRole,
 }: {
   projectId: string;
   members: MemberRow[];
-  categories: Category[];
   canManage: boolean;
   viewerId: string;
   viewerRole: ProjectRole;
@@ -173,14 +159,12 @@ export function MembersManager({
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead>Committee</TableHead>
-              <TableHead>Title</TableHead>
               <TableHead><span className="sr-only">Actions</span></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {members.map((member) => (
-              <EditableRow key={member.userId} projectId={projectId} member={member} categories={categories} />
+              <EditableRow key={member.userId} projectId={projectId} member={member} />
             ))}
           </TableBody>
         </Table>
@@ -190,7 +174,6 @@ export function MembersManager({
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead>Committee</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -204,7 +187,6 @@ export function MembersManager({
                   )}
                 </TableCell>
                 <TableCell>{ROLE_LABELS[member.role]}</TableCell>
-                <TableCell>{member.committeeTitle ?? member.committeeCategoryName ?? "None"}</TableCell>
               </TableRow>
             ))}
           </TableBody>

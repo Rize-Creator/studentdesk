@@ -39,23 +39,9 @@ const FEATURES = [
   { name: "Member history", text: "Leads and advisers can check the tasks a member has finished and their on-time record." },
 ];
 
-const WORKING_NOW = [
-  "Projects, tasks and milestones",
-  "Task board, dashboards and timeline",
-  "Suggestions with reasons",
-  "Email notifications and daily reports",
-];
-
-const STILL_TO_COME = [
-  "Interviews with student leaders, members and advisers",
-  "Sign-in with the CCDI LMS",
-  "A Data Privacy Act review before any real student data is used",
-  "Evaluation using ISO/IEC 25010",
-];
-
 const ROLES = [
   { who: "Project leads", what: "Create tasks, see who to assign and why, and approve finished work." },
-  { who: "Committee members", what: "See what's assigned to you, move it along the board, and submit your deliverable." },
+  { who: "Members", what: "See what's assigned to you, move it along the board, and submit your deliverable." },
   { who: "Faculty advisers", what: "Check readiness any time on the dashboard and get a summary report by email, with no need to ask for updates." },
 ];
 
@@ -210,27 +196,6 @@ export default async function GuestHomePage() {
             <li>Add your team, then create your first task.</li>
           </ol>
           <p className="mt-4 max-w-2xl text-sm text-muted-foreground">Once the LMS is connected, you&apos;ll sign in with your CCDI account instead.</p>
-        </section>
-
-        <section aria-labelledby="status-heading" className="mt-16 rounded-2xl bg-tint p-6 sm:mt-24 sm:p-8">
-          <h2 id="status-heading" className="text-3xl font-bold">Where the project stands</h2>
-          <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
-            This is our first working prototype, built using Rapid Application Development. Feedback from users will shape the next version.
-          </p>
-          <div className="mt-6 grid gap-8 md:grid-cols-2">
-            <div>
-              <h3 className="font-bold">Working now</h3>
-              <ul className="mt-2 list-inside list-disc space-y-1.5 leading-relaxed">
-                {WORKING_NOW.map((item) => <li key={item}>{item}</li>)}
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold">Still to come</h3>
-              <ul className="mt-2 list-inside list-disc space-y-1.5 leading-relaxed">
-                {STILL_TO_COME.map((item) => <li key={item}>{item}</li>)}
-              </ul>
-            </div>
-          </div>
         </section>
       </main>
 
