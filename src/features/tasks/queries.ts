@@ -39,12 +39,17 @@ export type BoardTask = {
   assigneeName: string | null;
   deadline: string;
   hasDeliverable: boolean;
+  commentCount: number;
 };
 
 export async function getBoard(projectId: string): Promise<BoardTask[]> {
   const tasks = await prisma.task.findMany({
     where: { projectId },
-    include: { assignee: { select: { id: true, name: true } }, category: true },
+    include: {
+      assignee: { select: { id: true, name: true } },
+      category: true,
+      _count: { select: { history: { where: { note: { not: null } } } } },
+    },
     orderBy: { position: "asc" },
   });
   return tasks.map((task) => ({
@@ -58,5 +63,6 @@ export async function getBoard(projectId: string): Promise<BoardTask[]> {
     assigneeName: task.assignee?.name ?? null,
     deadline: task.deadline.toISOString(),
     hasDeliverable: Boolean(task.deliverableUrl),
+    commentCount: task._count.history,
   }));
 }

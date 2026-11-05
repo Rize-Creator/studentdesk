@@ -1,7 +1,7 @@
 "use client";
 
 import { useSortable } from "@dnd-kit/sortable";
-import { CalendarDays, Link2 } from "lucide-react";
+import { CalendarDays, Link2, MessageSquare } from "lucide-react";
 import { PriorityChip } from "@/components/priority-chip";
 import type { BoardTask } from "@/features/tasks/queries";
 import { formatManilaDate } from "@/lib/dates";
@@ -45,6 +45,12 @@ export function BoardCardView({
         <PriorityChip priority={task.priority} />
         <span className="text-xs text-muted-foreground">{task.categoryName}</span>
       </div>
+      {task.commentCount > 0 && (
+        <span className="flex items-center gap-1 self-start rounded-md bg-tint px-1.5 py-0.5 text-xs font-semibold text-primary">
+          <MessageSquare aria-hidden className="size-3" />
+          {task.commentCount} {task.commentCount === 1 ? "comment" : "comments"}
+        </span>
+      )}
       <button type="button" onClick={onOpen} className="text-left text-sm font-bold hover:text-primary">
         {task.title}
       </button>

@@ -110,7 +110,8 @@ let position = 0;
 
 function addTask(input: { projectId: string; leadId: string; title: string; category: string; priority: Priority; status: Status; assigneeId: string | null; deadlineOffset: number; milestoneId: string | null; doneOffset?: number }) {
   const id = randomUUID();
-  const createdAt = midMorning(input.deadlineOffset - 7);
+  // A week before the deadline, but never in the future, even for tasks due soon.
+  const createdAt = midMorning(Math.min(input.deadlineOffset - 7, -2));
   const completedAt = input.status === "DONE" ? midMorning(input.doneOffset ?? input.deadlineOffset - 1) : null;
   position += 1000;
   tasks.push({

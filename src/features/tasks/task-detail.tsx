@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Field, selectClass } from "@/components/field";
@@ -10,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Skeleton } from "@/components/ui/skeleton";
 import { deleteTask } from "@/features/tasks/actions";
 import type { BoardTask } from "@/features/tasks/queries";
+import { leadComments } from "@/features/tasks/task-comments";
 import { TaskForm, type TaskFormOptions } from "@/features/tasks/task-form";
 import { STATUS_LABELS, TASK_STATUSES, type TaskStatus } from "@/features/tasks/transitions";
 import { safeCall } from "@/lib/action-result";
@@ -53,13 +55,11 @@ function historyEvents(task: TaskDetailData) {
     text: row.fromStatus
       ? `${row.changedBy.name} moved this from ${STATUS_LABELS[row.fromStatus]} to ${STATUS_LABELS[row.toStatus]}`
       : `${row.changedBy.name} created this in ${STATUS_LABELS[row.toStatus]}`,
-    note: row.note,
   }));
   const assignments = task.assignments.map((row) => ({
     id: row.id,
     at: row.assignedAt,
     text: `${row.assignedBy.name} assigned this to ${row.assignee.name}`,
-    note: null,
   }));
   return [...moves, ...assignments].sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
 }
@@ -146,6 +146,26 @@ export function TaskDetail({
                 </>
               )}
             </dl>
+            <section className="flex flex-col gap-2">
+              <h3 className="flex items-center gap-2 text-sm font-bold">
+                <MessageSquare aria-hidden className="size-4 text-primary" />
+                Lead&apos;s comments
+              </h3>
+              {leadComments(data.history).length === 0 ? (
+                <p className="text-sm text-muted-foreground">No comments yet. A lead adds one when sending this task back from Review.</p>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {leadComments(data.history).map((comment) => (
+                    <li key={comment.id} className="rounded-lg border-l-4 border-primary bg-tint p-3 text-sm">
+                      <p className="break-words whitespace-pre-wrap">{comment.text}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {comment.author}, {formatManilaDate(new Date(comment.at))}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
             {(data.deliverableUrl || data.deliverableNote) && (
               <section className="flex flex-col gap-1 rounded-lg bg-muted p-3 text-sm">
                 <h3 className="font-bold">Deliverable</h3>
@@ -185,7 +205,6 @@ export function TaskDetail({
                 {historyEvents(data).map((event) => (
                   <li key={event.id} className="border-l-2 border-border pl-3">
                     <p>{event.text}</p>
-                    {event.note && <p className="rounded-md bg-muted px-2 py-1">{event.note}</p>}
                     <p className="text-xs text-muted-foreground">{formatManilaDate(new Date(event.at))}</p>
                   </li>
                 ))}
