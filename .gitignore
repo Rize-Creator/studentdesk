@@ -46,3 +46,7 @@ next-env.d.ts
 /test-results
 /playwright-report
 /.superpowers
+
+# Local project notes and tool settings
+/.claude
+/docs/superpowers
