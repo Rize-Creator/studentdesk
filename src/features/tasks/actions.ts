@@ -2,6 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { authorize, getMembership, getSessionUser } from "@/features/auth/session";
+import { draftAssignment, draftMove } from "@/features/notifications/events";
+import { sendAfterResponse } from "@/features/notifications/mailer";
+import { queueNotifications } from "@/features/notifications/queue";
 import { positionAtEnd, positionBetween } from "@/features/tasks/positions";
 import { checkMove } from "@/features/tasks/transitions";
 import { fail, ok, type ActionResult } from "@/lib/action-result";
@@ -39,7 +42,7 @@ export async function createTask(projectId: string, input: unknown): Promise<Act
   if (problem) return fail(problem);
 
   const status = data.assigneeId ? "TODO" : "BACKLOG";
-  const task = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const last = await tx.task.aggregate({ where: { projectId, status }, _max: { position: true } });
     const created = await tx.task.create({
       data: {
@@ -54,8 +57,9 @@ export async function createTask(projectId: string, input: unknown): Promise<Act
     await tx.taskStatusHistory.create({
       data: { taskId: created.id, fromStatus: null, toStatus: status, changedById: auth.user.id },
     });
+    let emailIds: string[] = [];
     if (data.assigneeId) {
-      await tx.taskAssignment.create({
+      const assignment = await tx.taskAssignment.create({
         data: {
           taskId: created.id,
           assigneeId: data.assigneeId,
@@ -63,11 +67,16 @@ export async function createTask(projectId: string, input: unknown): Promise<Act
           recommendedRank: recommendedRank ?? null,
         },
       });
+      emailIds = await queueNotifications(
+        tx,
+        draftAssignment({ assignmentId: assignment.id, assigneeId: data.assigneeId, actor: auth.user, project: auth.project, task: created }),
+      );
     }
-    return created;
+    return { created, emailIds };
   });
+  sendAfterResponse(result.emailIds);
   revalidatePath(`/projects/${projectId}`, "layout");
-  return ok({ id: task.id });
+  return ok({ id: result.created.id });
 }
 
 export async function updateTask(projectId: string, taskId: string, input: unknown): Promise<ActionResult> {
@@ -85,19 +94,18 @@ export async function updateTask(projectId: string, taskId: string, input: unkno
     return fail("Move this task back to To Do before removing its assignee.");
   }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.task.update({ where: { id: taskId }, data: { ...data, deadline: endOfManilaDay(deadline) } });
-    if (data.assigneeId && data.assigneeId !== current.assigneeId) {
-      await tx.taskAssignment.create({
-        data: {
-          taskId,
-          assigneeId: data.assigneeId,
-          assignedById: auth.user.id,
-          recommendedRank: recommendedRank ?? null,
-        },
-      });
-    }
+  const emailIds = await prisma.$transaction(async (tx) => {
+    const updated = await tx.task.update({ where: { id: taskId }, data: { ...data, deadline: endOfManilaDay(deadline) } });
+    if (!data.assigneeId || data.assigneeId === current.assigneeId) return [];
+    const assignment = await tx.taskAssignment.create({
+      data: { taskId, assigneeId: data.assigneeId, assignedById: auth.user.id, recommendedRank: recommendedRank ?? null },
+    });
+    return queueNotifications(
+      tx,
+      draftAssignment({ assignmentId: assignment.id, assigneeId: data.assigneeId, actor: auth.user, project: auth.project, task: updated }),
+    );
   });
+  sendAfterResponse(emailIds);
   revalidatePath(`/projects/${projectId}`, "layout");
   return ok();
 }
@@ -149,13 +157,13 @@ export async function moveTask(projectId: string, taskId: string, input: unknown
   const after = neighbours.find((n) => n.id === afterId)?.position ?? null;
   const changedStage = task.status !== to;
 
-  await prisma.$transaction(async (tx) => {
+  const emailIds = await prisma.$transaction(async (tx) => {
     let position = positionBetween(before, after);
     if (before === null && after === null) {
       const last = await tx.task.aggregate({ where: { projectId, status: to }, _max: { position: true } });
       position = positionAtEnd(last._max.position);
     }
-    await tx.task.update({
+    const updated = await tx.task.update({
       where: { id: taskId },
       data: {
         status: to,
@@ -170,12 +178,22 @@ export async function moveTask(projectId: string, taskId: string, input: unknown
           : {}),
       },
     });
-    if (changedStage) {
-      await tx.taskStatusHistory.create({
-        data: { taskId, fromStatus: task.status, toStatus: to, changedById: user.id, note },
-      });
-    }
+    if (!changedStage) return [];
+    const history = await tx.taskStatusHistory.create({
+      data: { taskId, fromStatus: task.status, toStatus: to, changedById: user.id, note },
+    });
+    const drafts = await draftMove(tx, {
+      historyId: history.id,
+      from: task.status,
+      to,
+      note,
+      actor: user,
+      project: member.project,
+      task: updated,
+    });
+    return queueNotifications(tx, drafts);
   });
+  sendAfterResponse(emailIds);
   revalidatePath(`/projects/${projectId}`, "layout");
   return ok();
 }

@@ -2,6 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { authorize, getSessionUser } from "@/features/auth/session";
+import { draftMilestoneComplete } from "@/features/notifications/events";
+import { sendAfterResponse } from "@/features/notifications/mailer";
+import { queueNotifications } from "@/features/notifications/queue";
 import { fail, ok, type ActionResult } from "@/lib/action-result";
 import { endOfManilaDay, startOfManilaDay } from "@/lib/dates";
 import { prisma } from "@/lib/db";
@@ -80,10 +83,14 @@ export async function updateMilestone(projectId: string, milestoneId: string, in
 export async function setMilestoneComplete(projectId: string, milestoneId: string, complete: boolean): Promise<ActionResult> {
   const auth = await authorize(projectId, "milestones:manage");
   if (!auth.ok) return fail(auth.message);
-  await prisma.milestone.updateMany({
-    where: { id: milestoneId, projectId },
-    data: { completedAt: complete ? new Date() : null },
+  const milestone = await prisma.milestone.findFirst({ where: { id: milestoneId, projectId } });
+  if (!milestone) return fail("That milestone no longer exists.");
+  const emailIds = await prisma.$transaction(async (tx) => {
+    await tx.milestone.update({ where: { id: milestoneId }, data: { completedAt: complete ? new Date() : null } });
+    if (!complete || milestone.completedAt) return [];
+    return queueNotifications(tx, await draftMilestoneComplete(tx, { milestone, actor: auth.user, project: auth.project }));
   });
+  sendAfterResponse(emailIds);
   revalidatePath(`/projects/${projectId}`, "layout");
   return ok();
 }
