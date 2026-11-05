@@ -7,9 +7,10 @@ import { CategoryChart, ProgressChart, StageChart } from "@/features/metrics/das
 import type { ProjectDashboard } from "@/features/metrics/queries";
 import { ReadinessBadge } from "@/features/metrics/readiness-badge";
 import { useProjectDashboard } from "@/features/metrics/use-dashboard";
+import { SendReportButton } from "@/features/notifications/send-report-button";
 import { WORKLOAD_LIMIT } from "@/features/recommendations/engine";
 import { formatManilaDate } from "@/lib/dates";
-import { canViewHistory, type ProjectRole } from "@/lib/permissions";
+import { can, canViewHistory, type ProjectRole } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 
 function ReadinessPanel({ readiness }: { readiness: ProjectDashboard["readiness"] }) {
@@ -145,9 +146,12 @@ export function ProjectDashboardView({
   const data = useProjectDashboard(projectId, initial);
   return (
     <main className="flex flex-col gap-4">
-      <p className="text-xs text-muted-foreground">
-        {data.project.status === "ARCHIVED" ? "This project is archived." : "Updates automatically every 15 seconds"}
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">
+          {data.project.status === "ARCHIVED" ? "This project is archived." : "Updates automatically every 15 seconds"}
+        </p>
+        {data.project.status === "ACTIVE" && can(role, "report:send") && <SendReportButton projectId={projectId} />}
+      </div>
       <ReadinessPanel readiness={data.readiness} />
       <div className="grid gap-4 lg:grid-cols-2">
         <StageChart byStatus={data.byStatus} />
