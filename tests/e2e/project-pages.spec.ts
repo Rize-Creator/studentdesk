@@ -21,6 +21,7 @@ test("a lead sees team workload, milestone progress and a project summary", asyn
   await expect(page.getByText(/\d+ leads?, \d+ members?, \d+ advisers?/)).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "Active tasks" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "Finished" })).toBeVisible();
+  await expect(page.getByText(/These numbers cover/)).toHaveCount(0);
   await expect(page.getByLabel("Find a person")).toBeVisible();
 
   await page.goto(`${href}/milestones`);

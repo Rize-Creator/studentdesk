@@ -212,11 +212,6 @@ export function MembersManager({
               )}
             </TableBody>
           </Table>
-          {showWork && (
-            <p className="text-sm text-muted-foreground">
-              These numbers cover all of a person&apos;s projects. Suggestions hold back anyone with {WORKLOAD_LIMIT} or more active tasks.
-            </p>
-          )}
         </div>
         {canManage && <AddPerson projectId={projectId} />}
       </div>
