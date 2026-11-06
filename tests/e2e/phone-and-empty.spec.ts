@@ -24,9 +24,13 @@ test("guest pages fit on a phone", async ({ page }) => {
   await expectNoSidewaysScroll(page, "/sign-in");
 });
 
-test("the home page is honest about what's demo and explains suggestions", async ({ page }) => {
+test("the home page explains suggestions and has a centered footer", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText(/Demo version: sample data only/)).toBeVisible();
+  await expect(page.getByText(/Demo version: sample data only/)).toHaveCount(0);
+  await expect(page.getByText("Example with sample data.")).toHaveCount(0);
+  await expect(page.getByText(/Once the LMS is connected/)).toHaveCount(0);
+  const footer = page.getByText(/StudentDesk is a capstone project/);
+  expect(await footer.evaluate((el) => getComputedStyle(el).textAlign)).toBe("center");
   await expect(page.getByRole("heading", { name: "How suggestions work" })).toBeVisible();
   for (const [factor, weight] of [["Experience in the category", "30%"], ["Current workload", "30%"], ["On-time record", "25%"], ["Role", "15%"]]) {
     await expect(page.getByRole("listitem").filter({ hasText: factor }).filter({ hasText: weight })).toBeVisible();

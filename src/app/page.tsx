@@ -72,9 +72,6 @@ export default async function GuestHomePage() {
             >
               Sign in with LMS
             </Link>
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/80">
-              Demo version: sample data only. The CCDI LMS isn&apos;t connected yet, so you&apos;ll sign in with a demo account.
-            </p>
           </div>
 
           <figure className="rounded-2xl bg-card p-5 text-foreground shadow-2xl sm:p-7">
@@ -94,7 +91,6 @@ export default async function GuestHomePage() {
                 </li>
               ))}
             </ol>
-            <figcaption className="mt-2 text-xs text-muted-foreground">Example with sample data.</figcaption>
           </figure>
         </div>
       </section>
@@ -195,12 +191,11 @@ export default async function GuestHomePage() {
             <li>Open one of the sample projects, or create a project of your own.</li>
             <li>Add your team, then create your first task.</li>
           </ol>
-          <p className="mt-4 max-w-2xl text-sm text-muted-foreground">Once the LMS is connected, you&apos;ll sign in with your CCDI account instead.</p>
         </section>
       </main>
 
       <footer className="border-t border-border">
-        <p className="mx-auto w-full max-w-6xl px-4 py-6 text-sm text-muted-foreground sm:px-8">
+        <p className="mx-auto w-full max-w-6xl px-4 py-6 text-center text-sm text-muted-foreground sm:px-8">
           StudentDesk is a capstone project for Computer Communication Development Institute, Sorsogon City, A.Y. 2026-2027.
         </p>
       </footer>
