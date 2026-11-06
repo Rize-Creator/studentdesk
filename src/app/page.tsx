@@ -39,6 +39,13 @@ const FEATURES = [
   { name: "Member history", text: "Leads and advisers can check the tasks a member has finished and their on-time record." },
 ];
 
+const SECTIONS = [
+  { href: "#problem", label: "Problem" },
+  { href: "#how-it-works", label: "How it works" },
+  { href: "#features", label: "Features" },
+  { href: "#roles", label: "Roles" },
+];
+
 const ROLES = [
   { who: "Project leads", what: "Create tasks, see who to assign and why, and approve finished work." },
   { who: "Members", what: "See what's assigned to you, move it along the board, and submit your deliverable." },
@@ -54,7 +61,17 @@ export default async function GuestHomePage() {
         <div className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-8">
           <header className="flex items-center justify-between gap-4">
             <Wordmark />
-            <Link href="/sign-in" className="text-sm underline underline-offset-4 hover:text-white/75">
+            <nav aria-label="Page sections" className="hidden items-center gap-6 md:flex">
+              {SECTIONS.map((section) => (
+                <a key={section.href} href={section.href} className="text-sm font-medium underline-offset-4 outline-offset-4 outline-white hover:underline focus-visible:outline-2">
+                  {section.label}
+                </a>
+              ))}
+            </nav>
+            <Link
+              href="/sign-in"
+              className="rounded-lg bg-white px-4 py-2 text-sm font-bold text-navy outline-offset-4 outline-white transition-colors hover:bg-tint focus-visible:outline-2"
+            >
               Sign in
             </Link>
           </header>
@@ -96,7 +113,7 @@ export default async function GuestHomePage() {
       </section>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-14 sm:px-8 sm:py-20">
-        <section aria-labelledby="problem-heading">
+        <section id="problem" aria-labelledby="problem-heading" className="scroll-mt-6">
           <h2 id="problem-heading" className="max-w-2xl text-3xl font-bold">Running a student event shouldn&apos;t depend on who remembers what</h2>
           <ul className="mt-8 grid gap-8 md:grid-cols-3">
             {PROBLEMS.map((problem) => (
@@ -108,7 +125,7 @@ export default async function GuestHomePage() {
           </ul>
         </section>
 
-        <section aria-labelledby="suggestions-heading" className="mt-16 grid gap-8 sm:mt-24 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
+        <section id="how-it-works" aria-labelledby="suggestions-heading" className="mt-16 grid scroll-mt-6 gap-8 sm:mt-24 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
           <div>
             <h2 id="suggestions-heading" className="text-3xl font-bold">How suggestions work</h2>
             <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">
@@ -160,7 +177,7 @@ export default async function GuestHomePage() {
           </ol>
         </section>
 
-        <section aria-labelledby="features-heading" className="mt-16 sm:mt-24">
+        <section id="features" aria-labelledby="features-heading" className="mt-16 scroll-mt-6 sm:mt-24">
           <h2 id="features-heading" className="text-3xl font-bold">What&apos;s inside</h2>
           <dl className="mt-8 grid gap-x-10 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map((feature) => (
@@ -172,7 +189,7 @@ export default async function GuestHomePage() {
           </dl>
         </section>
 
-        <section aria-labelledby="roles-heading" className="mt-16 sm:mt-24">
+        <section id="roles" aria-labelledby="roles-heading" className="mt-16 scroll-mt-6 sm:mt-24">
           <h2 id="roles-heading" className="text-3xl font-bold">What you can do depends on your role</h2>
           <dl className="mt-6 divide-y divide-border border-y border-border">
             {ROLES.map((role) => (
