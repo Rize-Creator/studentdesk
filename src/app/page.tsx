@@ -40,20 +40,12 @@ const FEATURES = [
   { name: "Member history", text: "Leads and advisers can check the tasks a member has finished and their on-time record." },
 ];
 
-const FAQS = [
-  { question: "Does StudentDesk decide who does the task?", answer: "No. It suggests up to three people and explains why. The lead makes the final choice, and can pick anyone on the team." },
-  { question: "Why was someone suggested?", answer: "Each suggestion lists its reasons: tasks finished in that category, on-time record, current workload and past role." },
-  { question: "Who is it for?", answer: "CCDI student organizations and capstone groups, including project leads, members and faculty advisers." },
-  { question: "Can advisers see progress without asking?", answer: "Yes. Advisers can open any project's dashboard, compare their projects on Overview, and get a Readiness Report by email." },
-];
-
 const SECTIONS = [
   { href: "#problem", label: "Problem" },
   { href: "#see-it", label: "See it" },
   { href: "#how-it-works", label: "How it works" },
   { href: "#features", label: "Features" },
   { href: "#roles", label: "Roles" },
-  { href: "#faq", label: "FAQ" },
 ];
 
 const ROLES = [
@@ -259,18 +251,6 @@ export default async function GuestHomePage() {
               <div key={role.who} className="grid gap-1 py-5 sm:grid-cols-[14rem_1fr] sm:gap-6">
                 <dt className="text-xl font-bold">{role.who}</dt>
                 <dd className={`max-w-3xl ${BODY}`}>{role.what}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-
-        <section id="faq" aria-labelledby="faq-heading" className={SECTION_SPACE}>
-          <h2 id="faq-heading" className={HEADING}>Frequently asked questions</h2>
-          <dl className="mt-8 grid gap-x-10 gap-y-8 md:grid-cols-2">
-            {FAQS.map((faq) => (
-              <div key={faq.question}>
-                <dt className="text-xl font-bold">{faq.question}</dt>
-                <dd className={`mt-2 ${BODY}`}>{faq.answer}</dd>
               </div>
             ))}
           </dl>
