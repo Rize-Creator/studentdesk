@@ -60,3 +60,15 @@ test("an adviser sees workload numbers but can't change the team", async ({ page
   await expect(page.getByRole("button", { name: "Remove" })).toHaveCount(0);
   await expect(page.getByLabel("Find a person")).toHaveCount(0);
 });
+
+test("the Overdue only filter highlights when the cursor is over it", async ({ page }) => {
+  await signIn(page, /Lead:/);
+  const href = await foundationDay(page);
+  await page.goto(`${href}/tasks`);
+  const label = page.locator("label").filter({ hasText: "Overdue only" });
+  const background = () => label.evaluate((el) => getComputedStyle(el).backgroundColor);
+  await expect(label).toBeVisible();
+  const before = await background();
+  await label.hover();
+  await expect.poll(background).not.toBe(before);
+});

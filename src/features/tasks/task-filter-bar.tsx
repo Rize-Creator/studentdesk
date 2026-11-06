@@ -73,12 +73,12 @@ export function TaskFilterBar({
         </Field>
       </div>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-        <label className="flex items-center gap-2">
+        <label className="-ml-2 flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 font-medium transition-colors hover:bg-brand-red/10 hover:text-brand-red focus-within:bg-brand-red/10 focus-within:text-brand-red">
           <input
             type="checkbox"
             checked={filters.overdueOnly}
             onChange={(e) => set({ overdueOnly: e.target.checked })}
-            className="size-4 accent-primary"
+            className="size-4 cursor-pointer accent-brand-red"
           />
           Overdue only
         </label>
