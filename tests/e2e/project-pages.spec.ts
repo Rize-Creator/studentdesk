@@ -32,7 +32,8 @@ test("a lead sees team workload, milestone progress and a project summary", asyn
   await expect(page.getByRole("heading", { name: "Add a milestone" })).toBeVisible();
 
   await page.goto(`${href}/settings`);
-  const summary = page.getByRole("region", { name: "Project summary" });
+  // The side panel has its own summary, so look inside the page's main area.
+  const summary = page.getByRole("main").getByRole("region", { name: "Project summary" });
   await expect(summary).toContainText("% complete");
   await expect(summary).toContainText("Tasks");
   await expect(summary).toContainText("Members");
