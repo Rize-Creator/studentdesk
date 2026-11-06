@@ -54,3 +54,29 @@ test("on a phone, the header keeps only the name and Sign in", async ({ page }) 
   await expect(page.getByRole("navigation", { name: "Page sections" })).toBeHidden();
   await expect(page.locator("header").getByRole("link", { name: "Sign in", exact: true })).toBeVisible();
 });
+
+test("the landing page shows real screenshots, the task steps and a FAQ, in larger text", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "See it in action" })).toBeVisible();
+  for (const name of [/task board/i, /dashboard/i, /timeline/i, /suggested people/i]) {
+    const image = page.getByRole("img", { name });
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBeGreaterThan(0);
+  }
+  await expect(page.getByRole("list", { name: "How a task moves" }).getByRole("listitem")).toHaveCount(5);
+  await expect(page.getByRole("region", { name: "Frequently asked questions" }).getByRole("term")).toHaveCount(4);
+  const size = await page.getByText(/Tasks and decisions end up scattered/).evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  expect(size).toBeGreaterThanOrEqual(18);
+  const nav = page.getByRole("navigation", { name: "Page sections" });
+  await nav.getByRole("link", { name: "See it", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "See it in action" })).toBeInViewport();
+  await nav.getByRole("link", { name: "FAQ", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Frequently asked questions" })).toBeInViewport();
+});
+
+test("the landing page's screenshots fit on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+});
