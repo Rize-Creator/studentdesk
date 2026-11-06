@@ -3,7 +3,7 @@ import { manilaDateKey } from "@/lib/dates";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function calendarDaysBetween(from: Date, to: Date): number {
+export function calendarDaysBetween(from: Date, to: Date): number {
   const start = Date.parse(`${manilaDateKey(from)}T00:00:00.000Z`);
   const end = Date.parse(`${manilaDateKey(to)}T00:00:00.000Z`);
   return Math.round((end - start) / DAY_MS);

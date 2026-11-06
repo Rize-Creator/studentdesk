@@ -17,6 +17,32 @@ export function listMembers(projectId: string) {
   });
 }
 
+// The same counts suggestions use: active work across active projects, and everything ever finished.
+export async function getMemberRecords(userIds: string[]) {
+  const [active, finished] = await Promise.all([
+    prisma.task.groupBy({
+      by: ["assigneeId"],
+      where: { assigneeId: { in: userIds }, status: { in: ["TODO", "IN_PROGRESS", "REVIEW"] }, project: { status: "ACTIVE" } },
+      _count: { _all: true },
+    }),
+    prisma.task.groupBy({
+      by: ["assigneeId"],
+      where: { assigneeId: { in: userIds }, status: "DONE" },
+      _count: { _all: true },
+    }),
+  ]);
+  const toMap = (rows: typeof active) => new Map(rows.map((row) => [row.assigneeId, row._count._all]));
+  return { active: toMap(active), finished: toMap(finished) };
+}
+
+export async function countProjectParts(projectId: string) {
+  const [members, milestones] = await Promise.all([
+    prisma.projectMember.count({ where: { projectId } }),
+    prisma.milestone.count({ where: { projectId } }),
+  ]);
+  return { members, milestones };
+}
+
 // Only people who have signed in at least once exist as users (spec Section 6).
 export function searchPeople(projectId: string, query: string) {
   const text = query.trim();

@@ -2,16 +2,27 @@ import { notFound } from "next/navigation";
 import { requireMember } from "@/features/auth/session";
 import { ArchiveButton } from "@/features/projects/archive-button";
 import { ProjectForm } from "@/features/projects/project-form";
+import { countProjectParts, getProjectSummary } from "@/features/projects/queries";
 import { manilaDateKey } from "@/lib/dates";
 import { can } from "@/lib/permissions";
+import { cn } from "@/lib/utils";
 
 export default async function ProjectSettingsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
   const { member, project } = await requireMember(projectId);
   if (!can(member.role, "project:edit")) notFound();
   const archived = project.status === "ARCHIVED";
+  const [{ summary }, parts] = await Promise.all([getProjectSummary(projectId, project.targetDate), countProjectParts(projectId)]);
+  const rows = [
+    { label: "Tasks", value: summary.total },
+    { label: "Overdue tasks", value: summary.overdue },
+    { label: "Members", value: parts.members },
+    { label: "Milestones", value: parts.milestones },
+    { label: "Days left", value: summary.daysLeft },
+  ];
+
   return (
-    <main className="flex flex-col gap-10">
+    <main className={cn("grid items-start gap-8", !archived && "lg:grid-cols-[minmax(0,1fr)_20rem]")}>
       {!archived && (
         <ProjectForm
           projectId={projectId}
@@ -24,15 +35,34 @@ export default async function ProjectSettingsPage({ params }: { params: Promise<
           }}
         />
       )}
-      <section className="flex max-w-xl flex-col items-start gap-2">
-        <h2 className="text-xl font-bold">{archived ? "Restore this project" : "Archive this project"}</h2>
-        <p className="text-muted-foreground">
-          {archived
-            ? "Restoring lets your team change tasks again and turns reminders back on."
-            : "Archiving makes the project read-only and stops its reminders. Its records still count toward suggestions."}
-        </p>
-        <ArchiveButton projectId={projectId} archived={archived} />
-      </section>
+      <div className={cn("flex flex-col gap-4", archived && "max-w-xl")}>
+        <section aria-labelledby="project-summary" className="flex flex-col gap-3 rounded-xl bg-muted p-4">
+          <h2 id="project-summary" className="text-lg font-bold">Project summary</h2>
+          <div className="flex flex-col gap-1 text-sm">
+            <span><span className="font-bold tabular-nums">{summary.percent}%</span> complete</span>
+            <div aria-hidden className="h-1.5 overflow-hidden rounded-full bg-card">
+              <div className="h-full rounded-full bg-primary" style={{ width: `${summary.percent}%` }} />
+            </div>
+          </div>
+          <dl className="flex flex-col gap-2 text-sm">
+            {rows.map((row) => (
+              <div key={row.label} className="flex items-baseline justify-between gap-3">
+                <dt className="text-muted-foreground">{row.label}</dt>
+                <dd className={cn("font-bold tabular-nums", row.label === "Overdue tasks" && row.value > 0 && "text-brand-red")}>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+        <section className="flex flex-col items-start gap-2 rounded-xl border border-brand-red/40 p-4">
+          <h2 className="text-lg font-bold">{archived ? "Restore this project" : "Archive this project"}</h2>
+          <p className="text-sm text-muted-foreground">
+            {archived
+              ? "Restoring lets your team change tasks again and turns reminders back on."
+              : "Archiving makes the project read-only and stops its reminders. Its records still count toward suggestions."}
+          </p>
+          <ArchiveButton projectId={projectId} archived={archived} />
+        </section>
+      </div>
     </main>
   );
 }
