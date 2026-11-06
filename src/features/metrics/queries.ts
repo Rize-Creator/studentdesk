@@ -122,7 +122,7 @@ export async function loadReadiness(projectId: string, now = new Date()) {
 }
 
 export async function getMyWork(userId: string, now = new Date()) {
-  const [tasks, memberships] = await Promise.all([
+  const [tasks, memberships, finishedCount] = await Promise.all([
     prisma.task.findMany({
       where: { assigneeId: userId, status: { not: "DONE" }, project: { status: "ACTIVE" } },
       include: { project: { select: { id: true, name: true } }, category: true },
@@ -132,6 +132,16 @@ export async function getMyWork(userId: string, now = new Date()) {
       where: { userId, project: { status: "ACTIVE" } },
       include: { project: { select: { id: true, name: true, targetDate: true } } },
       orderBy: { project: { targetDate: "asc" } },
+    }),
+    prisma.task.count({ where: { assigneeId: userId, status: "DONE" } }),
+  ]);
+  const ledProjectIds = memberships.filter((member) => member.role === "LEAD").map((member) => member.project.id);
+  const [dashboards, waiting] = await Promise.all([
+    Promise.all(memberships.map((member) => getProjectDashboard(member.project.id, now))),
+    prisma.task.findMany({
+      where: { projectId: { in: ledProjectIds }, status: "REVIEW" },
+      include: { project: { select: { name: true } }, assignee: { select: { name: true } } },
+      orderBy: { deadline: "asc" },
     }),
   ]);
   const soonKey = addDaysToKey(manilaDateKey(now), 7);
@@ -149,12 +159,29 @@ export async function getMyWork(userId: string, now = new Date()) {
       dueSoon: manilaDateKey(task.deadline) <= soonKey,
     })),
     overdueCount: tasks.filter((task) => isOverdue(task, now)).length,
-    projects: memberships.map((member) => ({
-      id: member.project.id,
-      name: member.project.name,
-      role: member.role,
-      targetDate: member.project.targetDate.toISOString(),
+    finishedCount,
+    waitingForReview: waiting.map((task) => ({
+      id: task.id,
+      title: task.title,
+      projectId: task.projectId,
+      projectName: task.project.name,
+      assigneeName: task.assignee?.name ?? null,
+      deadline: task.deadline.toISOString(),
+      overdue: isOverdue(task, now),
     })),
+    projects: memberships.map((member, index) => {
+      const dashboard = dashboards[index];
+      const next = dashboard.milestones.find((milestone) => !milestone.complete);
+      return {
+        id: member.project.id,
+        name: member.project.name,
+        role: member.role,
+        targetDate: member.project.targetDate.toISOString(),
+        completion: Math.round(dashboard.readiness.completion),
+        readinessStatus: dashboard.readiness.status,
+        nextMilestone: next ? { title: next.title, dueDate: next.dueDate, overdue: next.overdue } : null,
+      };
+    }),
   };
 }
 
