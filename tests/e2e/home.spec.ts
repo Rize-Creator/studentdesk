@@ -79,3 +79,19 @@ test("the landing page's screenshots fit on a phone", async ({ page }) => {
   await page.waitForLoadState("networkidle");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
 });
+
+test("the demo accounts have sample work to show", async ({ page }) => {
+  await signIn(page, /Lead:/);
+  await expect(page.getByText("Prepare the opening remarks")).toBeVisible();
+  const projects = page.getByRole("region", { name: "My projects" });
+  await expect(projects.getByRole("link", { name: /Foundation Day 2026/ })).toBeVisible();
+  await expect(projects.getByRole("link", { name: /Recognition Day 2026/ })).toContainText("On Track");
+
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await page.waitForURL("**/");
+  await signIn(page, /Adviser:/);
+  await page.goto("/overview");
+  for (const name of [/Intramurals 2026/, /Foundation Day 2026/, /Recognition Day 2026/, /Capstone Group 3/]) {
+    await expect(page.getByRole("link", { name })).toBeVisible();
+  }
+});

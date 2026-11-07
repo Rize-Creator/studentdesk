@@ -193,9 +193,9 @@ export default async function GuestHomePage() {
             </p>
             <Image
               src="/landing/suggestions.jpg"
-              alt="Suggested people for a new task, each with a match percent and reasons, and one person marked as having a heavy workload"
+              alt="Suggested people for a new task, each with a match percent and reasons, and a note that one person is at the workload limit"
               width={816}
-              height={612}
+              height={606}
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="mt-2 h-auto w-full rounded-xl border border-border shadow-lg"
             />

@@ -93,6 +93,27 @@ const ACTIVE: { name: string; type: "EVENT" | "ACADEMIC"; start: number; target:
       ["Book the referees", "Logistics", "MEDIUM", "BACKLOG", null, 4, 1],
     ],
   },
+  // Gives the Lead, Member and Adviser demo accounts more to show. Nobody here is near the workload
+  // limit, and it adds no Logistics or Creatives history, so the demo's suggestions stay the same.
+  {
+    name: "Recognition Day 2026 (sample)", type: "EVENT", start: -14, target: 21,
+    team: [["maria.santos", "LEAD"], ["juan.delacruz", "MEMBER"], ["ana.reyes", "MEMBER"], ["liza.mendoza", "MEMBER"], ["elena.ramos", "ADVISER"]],
+    milestones: [["Awardee list approved", -3], ["Invitations sent", 5], ["Program rehearsal", 18]],
+    rows: [
+      ["Write the recognition criteria", "Documentation", "HIGH", "DONE", "juan.delacruz", -10, 0],
+      ["Compile the nominations", "Documentation", "MEDIUM", "DONE", "ana.reyes", -8, 0],
+      ["List the awardees", "Documentation", "HIGH", "DONE", "juan.delacruz", -5, 0],
+      ["Draft the invitation letter", "Documentation", "MEDIUM", "DONE", "maria.santos", -4, 1],
+      ["Canvass medal prices", "Finance", "LOW", "DONE", "liza.mendoza", -3, null],
+      ["Write the awardee citations", "Documentation", "HIGH", "REVIEW", "ana.reyes", 5, 1],
+      ["Prepare the awards budget", "Finance", "MEDIUM", "REVIEW", "liza.mendoza", 7, null],
+      ["Prepare the opening remarks", "Documentation", "MEDIUM", "IN_PROGRESS", "maria.santos", 4, 2],
+      ["Confirm the guest speaker", "Documentation", "HIGH", "IN_PROGRESS", "maria.santos", 6, 1],
+      ["Approve the program flow", "Documentation", "MEDIUM", "TODO", "maria.santos", 10, 2],
+      ["Prepare the awards list", "Documentation", "MEDIUM", "TODO", "juan.delacruz", 12, 2],
+      ["Arrange the photo booth", "Creatives", "LOW", "BACKLOG", null, 15, 2],
+    ],
+  },
 ];
 
 const today = manilaDateKey(new Date());
