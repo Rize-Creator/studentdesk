@@ -7,7 +7,8 @@ export default defineConfig({
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3000",
-    reuseExistingServer: true,
+    // Never reuse a server that is already running. It may be set to send real email, and these tests assign tasks.
+    reuseExistingServer: false,
     timeout: 120_000,
     // Test runs record emails instead of sending them.
     env: { EMAIL_MODE: "log" },

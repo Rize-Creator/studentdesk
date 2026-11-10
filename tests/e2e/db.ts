@@ -12,12 +12,17 @@ function run<T>(command: string, ...args: string[]): T {
 export const db = {
   findTask: (projectId: string, title: string) =>
     run<{ id: string; status: string; recommendedRank: number | null }>("findTask", projectId, title),
-  getTask: (taskId: string) => run<{ status: string; deliverableUrl: string | null }>("getTask", taskId),
+  getTask: (taskId: string) => run<{ status: string; deliverableUrl: string | null; assigneeId: string | null; deadline: string }>("getTask", taskId),
   countNotifications: (taskId: string, type: string) => run<number>("countNotifications", taskId, type),
   historyOf: (taskId: string) => run<string[]>("historyOf", taskId),
   setCommittee: (projectId: string, name: string, categoryId: string, title: string) =>
     run<boolean>("setCommittee", projectId, name, categoryId, title),
   getMember: (projectId: string, name: string) =>
     run<{ role: string; committeeCategoryId: string | null; committeeTitle: string | null }>("getMember", projectId, name),
+  sessionFor: (userId: string, name: string, email: string) => run<string>("sessionFor", userId, name, email),
+  countProjectsNamed: (name: string) => run<number>("countProjectsNamed", name),
+  deleteProjectsNamed: (name: string) => run<number>("deleteProjectsNamed", name),
+  overlappingDailyJobs: () => run<{ responses: number[]; attempts: number[]; statuses: string[] }>("overlappingDailyJobs"),
+  dailyJobWithBrokenProject: () => run<number>("dailyJobWithBrokenProject"),
   deleteProject: (projectId: string) => run<boolean>("deleteProject", projectId),
 };
