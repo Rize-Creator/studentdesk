@@ -43,6 +43,12 @@ export function statusAfterAssigning(status: TaskStatus, assigneeId: string | nu
   return status === "BACKLOG" && assigneeId ? "TODO" : status;
 }
 
+// Taking the assignee off a task that is under way would leave nobody responsible for it. A task that already
+// has no assignee, such as after a member left the project, can still be edited.
+export function removesNeededAssignee(status: TaskStatus, currentAssigneeId: string | null, nextAssigneeId: string | null): boolean {
+  return currentAssigneeId !== null && nextAssigneeId === null && NEEDS_ASSIGNEE.includes(status);
+}
+
 export function isSendBack(from: TaskStatus, to: TaskStatus): boolean {
   return from === "REVIEW" && to !== "REVIEW" && to !== "DONE";
 }

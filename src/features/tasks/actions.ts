@@ -6,13 +6,12 @@ import { draftAssignment, draftMove } from "@/features/notifications/events";
 import { sendAfterResponse } from "@/features/notifications/mailer";
 import { queueNotifications } from "@/features/notifications/queue";
 import { positionAtEnd, positionBetween } from "@/features/tasks/positions";
-import { checkMove, statusAfterAssigning } from "@/features/tasks/transitions";
+import { checkMove, removesNeededAssignee, statusAfterAssigning } from "@/features/tasks/transitions";
 import { fail, ok, type ActionResult } from "@/lib/action-result";
 import { endOfManilaDay } from "@/lib/dates";
 import { prisma } from "@/lib/db";
 import { deliverableSchema, fieldErrors, moveSchema, taskSchema } from "@/lib/validators/schemas";
 
-const NEEDS_ASSIGNEE = ["IN_PROGRESS", "REVIEW", "DONE"];
 
 async function checkReferences(
   projectId: string,
@@ -90,7 +89,7 @@ export async function updateTask(projectId: string, taskId: string, input: unkno
 
   const current = await prisma.task.findFirst({ where: { id: taskId, projectId } });
   if (!current) return fail("That task no longer exists.");
-  if (!data.assigneeId && NEEDS_ASSIGNEE.includes(current.status)) {
+  if (removesNeededAssignee(current.status, current.assigneeId, data.assigneeId)) {
     return fail("Move this task back to To Do before removing its assignee.");
   }
 

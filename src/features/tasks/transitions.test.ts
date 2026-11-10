@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkMove, isSendBack, type MoveInput, statusAfterAssigning } from "./transitions";
+import { checkMove, isSendBack, type MoveInput, removesNeededAssignee, statusAfterAssigning } from "./transitions";
 
 const base: MoveInput = {
   role: "MEMBER",
@@ -107,5 +107,28 @@ describe("statusAfterAssigning", () => {
     for (const status of ["TODO", "IN_PROGRESS", "REVIEW", "DONE"] as const) {
       expect(statusAfterAssigning(status, "juan")).toBe(status);
     }
+  });
+});
+
+describe("removesNeededAssignee", () => {
+  it("is true when an edit takes the assignee off a task that's under way", () => {
+    expect(removesNeededAssignee("IN_PROGRESS", "juan", null)).toBe(true);
+    expect(removesNeededAssignee("REVIEW", "juan", null)).toBe(true);
+    expect(removesNeededAssignee("DONE", "juan", null)).toBe(true);
+  });
+
+  it("is false when the task already had no assignee, such as after a member left the project", () => {
+    expect(removesNeededAssignee("IN_PROGRESS", null, null)).toBe(false);
+    expect(removesNeededAssignee("REVIEW", null, null)).toBe(false);
+  });
+
+  it("is false when the task gets or keeps an assignee", () => {
+    expect(removesNeededAssignee("IN_PROGRESS", "juan", "ana")).toBe(false);
+    expect(removesNeededAssignee("IN_PROGRESS", null, "ana")).toBe(false);
+  });
+
+  it("is false for stages that don't need an assignee", () => {
+    expect(removesNeededAssignee("TODO", "juan", null)).toBe(false);
+    expect(removesNeededAssignee("BACKLOG", "juan", null)).toBe(false);
   });
 });
