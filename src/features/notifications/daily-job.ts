@@ -45,7 +45,12 @@ export async function runDailyJob(now = new Date()) {
 
   const projects = await prisma.project.findMany({ where: { status: "ACTIVE" }, select: { id: true } });
   for (const project of projects) {
-    drafts.push(...(await draftReadinessReports(project.id, todayKey, now)));
+    try {
+      drafts.push(...(await draftReadinessReports(project.id, todayKey, now)));
+    } catch (error) {
+      // One project failing should not stop the reminders and reports for every other project.
+      console.error(`Could not prepare the Readiness Report for project ${project.id}`, error);
+    }
   }
 
   const queued = await queueNotifications(prisma, drafts);
