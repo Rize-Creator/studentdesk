@@ -13,7 +13,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useIsMutating, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, CircleDashed, CircleDot, Eye, Inbox, type LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -119,6 +119,9 @@ export function Board({
   const router = useRouter();
   const queryClient = useQueryClient();
   const queryKey = ["board", projectId];
+  const moveKey = ["move-task", projectId];
+  // A refresh that lands while a move is still saving brings back the old stage, so the card would jump back.
+  const saving = useIsMutating({ mutationKey: moveKey }) > 0;
   const [dragging, setDragging] = useState<BoardTask | null>(null);
   const [pending, setPending] = useState<PendingDialog | null>(null);
   const [openTaskId, setOpenTaskId] = useState<string | null>(initialOpenTaskId);
@@ -129,7 +132,7 @@ export function Board({
   const { data } = useQuery({
     queryKey,
     initialData: { tasks: initialTasks },
-    refetchInterval: dragging ? false : REFRESH_MS,
+    refetchInterval: dragging || saving ? false : REFRESH_MS,
     queryFn: async (): Promise<BoardData> => {
       const response = await fetch(`/api/projects/${projectId}/board`);
       if (!response.ok) throw new Error("Couldn't refresh the board.");
@@ -139,6 +142,7 @@ export function Board({
   const tasks = data.tasks;
 
   const mutation = useMutation({
+    mutationKey: moveKey,
     mutationFn: async ({ task, to, beforeId, afterId, note, deliverableUrl, deliverableNote }: MoveInput) => {
       const result = await safeCall(() =>
         moveTask(projectId, task.id, { to, beforeId, afterId, note, deliverableUrl, deliverableNote }),
