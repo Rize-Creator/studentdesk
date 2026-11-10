@@ -135,7 +135,7 @@ export function TaskDetail({
               <span className="text-sm text-muted-foreground">{data.category.name}</span>
             </div>
             {data.description && <p className="text-sm whitespace-pre-wrap">{data.description}</p>}
-            <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
+            <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1 text-sm">
               <dt className="text-muted-foreground">Assignee</dt>
               <dd>{data.assignee?.name ?? "Unassigned"}</dd>
               <dt className="text-muted-foreground">Deadline</dt>

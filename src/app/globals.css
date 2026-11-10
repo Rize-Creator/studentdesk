@@ -128,6 +128,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Lets a very long word, such as a pasted link, wrap instead of stretching the page. */
+    overflow-wrap: break-word;
   }
   html {
     @apply font-sans;

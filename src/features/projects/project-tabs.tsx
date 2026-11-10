@@ -34,7 +34,7 @@ export function ProjectTabs({
         <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
           <li><Link href="/projects" className="hover:text-foreground">Projects</Link></li>
           <li aria-hidden>/</li>
-          <li><Link href={base} className="hover:text-foreground">{projectName}</Link></li>
+          <li className="min-w-0"><Link href={base} className="hover:text-foreground">{projectName}</Link></li>
           {currentLabel && (
             <>
               <li aria-hidden>/</li>

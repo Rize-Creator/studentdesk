@@ -124,7 +124,9 @@ function ProjectCard({ project }: { project: MyWork["projects"][number] }) {
       </span>
       <span className={cn("flex items-start gap-1.5 text-xs", next?.overdue ? "font-bold text-brand-red" : "text-muted-foreground")}>
         <Flag aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-        {next ? `${next.overdue ? "Overdue" : "Next"}: ${next.title}, ${formatManilaDate(new Date(next.dueDate))}` : "No upcoming milestones"}
+        <span className="min-w-0">
+          {next ? `${next.overdue ? "Overdue" : "Next"}: ${next.title}, ${formatManilaDate(new Date(next.dueDate))}` : "No upcoming milestones"}
+        </span>
       </span>
     </Link>
   );
@@ -160,7 +162,7 @@ export function MyWorkView({ initial, name, greeting }: { initial: MyWork; name:
 
       <div className={cn("grid gap-8", !onlyAdvises && "lg:grid-cols-[minmax(0,1fr)_20rem]")}>
         {!onlyAdvises && (
-          <div className="flex flex-col gap-8">
+          <div className="flex min-w-0 flex-col gap-8">
             {isLead && <ReviewList tasks={data.waitingForReview} />}
             <section className="flex flex-col gap-4">
               <h2 className="text-lg font-bold">My tasks</h2>
@@ -176,7 +178,7 @@ export function MyWorkView({ initial, name, greeting }: { initial: MyWork; name:
           </div>
         )}
 
-        <section aria-labelledby="my-projects" className="flex flex-col gap-2">
+        <section aria-labelledby="my-projects" className="flex min-w-0 flex-col gap-2">
           <h2 id="my-projects" className="text-lg font-bold">My projects</h2>
           {onlyAdvises && (
             <p className="mb-2 text-sm text-muted-foreground">

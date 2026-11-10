@@ -99,7 +99,7 @@ export function TasksTable({
           <TableBody>
             {shown.map((task) => (
               <TableRow key={task.id}>
-                <TableCell className="font-bold whitespace-normal">{task.title}</TableCell>
+                <TableCell className="min-w-48 font-bold wrap-anywhere whitespace-normal">{task.title}</TableCell>
                 <TableCell>{task.categoryName}</TableCell>
                 <TableCell><PriorityChip priority={task.priority} /></TableCell>
                 <TableCell><StageBadge status={task.status} /></TableCell>

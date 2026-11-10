@@ -40,7 +40,7 @@ function ReadinessPanel({ readiness }: { readiness: ProjectDashboard["readiness"
 
 function OverdueList({ projectId, tasks }: { projectId: string; tasks: ProjectDashboard["overdue"] }) {
   return (
-    <section className="flex flex-col gap-2 rounded-xl border border-border p-4">
+    <section className="flex min-w-0 flex-col gap-2 rounded-xl border border-border p-4">
       <h2 className="text-sm font-bold">Overdue tasks ({tasks.length})</h2>
       {tasks.length === 0 ? (
         <p className="text-sm text-muted-foreground">Nothing is overdue.</p>
@@ -66,7 +66,7 @@ function OverdueList({ projectId, tasks }: { projectId: string; tasks: ProjectDa
 
 function MilestoneList({ milestones }: { milestones: ProjectDashboard["milestones"] }) {
   return (
-    <section className="flex flex-col gap-2 rounded-xl border border-border p-4">
+    <section className="flex min-w-0 flex-col gap-2 rounded-xl border border-border p-4">
       <h2 className="text-sm font-bold">Milestones</h2>
       {milestones.length === 0 ? (
         <p className="text-sm text-muted-foreground">No milestones yet.</p>

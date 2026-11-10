@@ -37,7 +37,7 @@ export function OverviewView({ initial }: { initial: Overview }) {
         {data.projects.map((project) => {
           const percent = Math.round(project.readiness.completion);
           return (
-            <li key={project.id}>
+            <li key={project.id} className="min-w-0">
               <Link
                 href={`/projects/${project.id}`}
                 className="flex h-full flex-col gap-3 rounded-xl border border-border p-4 transition-colors hover:border-primary"
@@ -58,10 +58,12 @@ export function OverviewView({ initial }: { initial: Overview }) {
                     {project.overdueCount} overdue {project.overdueCount === 1 ? "task" : "tasks"}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Flag aria-hidden className="size-3.5" />
-                    {project.nextMilestone
-                      ? `${project.nextMilestone.title}, ${formatManilaDate(new Date(project.nextMilestone.dueDate))}`
-                      : "No upcoming milestones"}
+                    <Flag aria-hidden className="size-3.5 shrink-0" />
+                    <span className="min-w-0">
+                      {project.nextMilestone
+                        ? `${project.nextMilestone.title}, ${formatManilaDate(new Date(project.nextMilestone.dueDate))}`
+                        : "No upcoming milestones"}
+                    </span>
                   </span>
                 </span>
               </Link>
