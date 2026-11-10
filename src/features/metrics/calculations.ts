@@ -97,6 +97,12 @@ export function countByCategory(tasks: { categoryName: string; status: TaskStatu
   return [...rows.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+// The chart runs to the target date, or on to the last change when work went past it, but never past today.
+export function progressEndKey(todayKey: string, targetKey: string, changeKeys: string[]): string {
+  const lastKey = changeKeys.reduce((latest, key) => (key > latest ? key : latest), targetKey);
+  return todayKey < lastKey ? todayKey : lastKey;
+}
+
 export function progressOverTime(events: { at: Date; delta: 1 | -1 }[], startKey: string, endKey: string) {
   const perDay = new Map<string, number>();
   for (const event of events) {

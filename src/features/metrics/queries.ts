@@ -7,6 +7,7 @@ import {
   isMilestoneComplete,
   isMilestoneOverdue,
   isOverdue,
+  progressEndKey,
   progressOverTime,
   sortByReadiness,
 } from "./calculations";
@@ -51,7 +52,7 @@ export async function getProjectDashboard(projectId: string, now = new Date()) {
   const startKey = manilaDateKey(project.startDate);
   const todayKey = manilaDateKey(now);
   const targetKey = manilaDateKey(project.targetDate);
-  const endKey = todayKey < targetKey ? todayKey : targetKey;
+  const endKey = progressEndKey(todayKey, targetKey, events.map((event) => manilaDateKey(event.at)));
 
   return {
     project: {

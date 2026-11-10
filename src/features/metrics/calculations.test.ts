@@ -7,6 +7,7 @@ import {
   isMilestoneComplete,
   isMilestoneOverdue,
   isOverdue,
+  progressEndKey,
   progressOverTime,
   timelinePercent,
   type MetricTask,
@@ -178,5 +179,24 @@ describe("sortByReadiness", () => {
       { name: "d", readiness: { status: "AT_RISK" as const } },
     ];
     expect(sortByReadiness(rows).map((row) => row.name)).toEqual(["c", "d", "a", "b"]);
+  });
+});
+
+describe("progressEndKey", () => {
+  it("stops at today while the project is still running", () => {
+    expect(progressEndKey("2026-11-11", "2026-11-28", ["2026-11-05", "2026-11-10"])).toBe("2026-11-11");
+  });
+
+  it("stops at the target date when nothing changed after it", () => {
+    expect(progressEndKey("2027-03-01", "2026-11-28", ["2026-11-05", "2026-11-27"])).toBe("2026-11-28");
+  });
+
+  it("runs on to the last change when work finished after the target date", () => {
+    expect(progressEndKey("2027-03-01", "2026-11-28", ["2026-11-27", "2026-12-03"])).toBe("2026-12-03");
+  });
+
+  it("works with no changes at all", () => {
+    expect(progressEndKey("2026-11-11", "2026-11-28", [])).toBe("2026-11-11");
+    expect(progressEndKey("2027-03-01", "2026-11-28", [])).toBe("2026-11-28");
   });
 });
