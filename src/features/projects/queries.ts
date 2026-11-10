@@ -56,7 +56,8 @@ export function searchPeople(projectId: string, query: string) {
         { lmsId: { contains: text, mode: "insensitive" } },
       ],
     },
-    select: { id: true, name: true, email: true },
+    // Only what the Add a person list shows. Email addresses stay on the server.
+    select: { id: true, name: true },
     take: 10,
     orderBy: { name: "asc" },
   });

@@ -63,7 +63,7 @@ export async function removeMember(projectId: string, userId: string): Promise<A
   return ok();
 }
 
-export async function findPeople(projectId: string, query: string): Promise<ActionResult<{ id: string; name: string; email: string }[]>> {
+export async function findPeople(projectId: string, query: string): Promise<ActionResult<{ id: string; name: string }[]>> {
   const auth = await authorize(projectId, "members:manage");
   if (!auth.ok) return fail(auth.message);
   return ok(await searchPeople(projectId, query));

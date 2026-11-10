@@ -110,7 +110,7 @@ function AddPerson({ projectId }: { projectId: string }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [role, setRole] = useState<ProjectRole>("MEMBER");
-  const [results, setResults] = useState<{ id: string; name: string; email: string }[]>([]);
+  const [results, setResults] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
     if (query.trim().length < 2) return;
