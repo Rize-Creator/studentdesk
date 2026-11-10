@@ -131,6 +131,7 @@ export function readinessEmail(
     byStatus: Record<TaskStatus, number>;
     overdue: { title: string; assigneeName: string | null; deadline: Date }[];
     inReview: { title: string; assigneeName: string | null }[];
+    overdueMilestones: { title: string; dueDate: Date }[];
     upcomingMilestones: { title: string; dueDate: Date }[];
   },
 ) {
@@ -138,7 +139,11 @@ export function readinessEmail(
   const stages = TASK_STATUSES.map((status) => `${STATUS_LABELS[status]}: ${data.byStatus[status]}`).join(" · ");
   const person = (name: string | null) => safe(name ?? "Unassigned");
   return {
-    subject: `Readiness report: ${data.projectName} is ${label}`,
+    // "Foundation Day is No tasks yet" reads badly, so a project with no tasks gets its own wording.
+    subject:
+      data.readiness.status === "NO_TASKS"
+        ? `Readiness report: ${data.projectName} has no tasks yet`
+        : `Readiness report: ${data.projectName} is ${label}`,
     body: layout(
       `Readiness report: ${data.projectName}`,
       paragraph(`Status: <strong>${safe(label)}</strong>. ${Math.round(data.readiness.completion)}% of tasks are done.`) +
@@ -146,6 +151,10 @@ export function readinessEmail(
         paragraph(stages) +
         paragraph("<strong>Overdue tasks</strong>") +
         list(data.overdue.map((t) => `${safe(t.title)} (${person(t.assigneeName)}, due ${formatManilaDate(t.deadline)})`), "None.") +
+        (data.overdueMilestones.length
+          ? paragraph("<strong>Overdue milestones</strong>") +
+            list(data.overdueMilestones.map((m) => `${safe(m.title)} (was due ${formatManilaDate(m.dueDate)})`), "None.")
+          : "") +
         paragraph("<strong>Waiting for review</strong>") +
         list(data.inReview.map((t) => `${safe(t.title)} (${person(t.assigneeName)})`), "None.") +
         paragraph("<strong>Milestones in the next 14 days</strong>") +

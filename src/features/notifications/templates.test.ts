@@ -71,6 +71,7 @@ describe("readinessEmail", () => {
     byStatus: { BACKLOG: 1, TODO: 3, IN_PROGRESS: 3, REVIEW: 2, DONE: 9 },
     overdue: [{ title: "Book the sound system", assigneeName: "Carlo", deadline }],
     inReview: [{ title: "Design the poster", assigneeName: "Paolo" }],
+    overdueMilestones: [],
     upcomingMilestones: [{ title: "Final run-through", dueDate: deadline }],
   });
 
@@ -82,5 +83,37 @@ describe("readinessEmail", () => {
     for (const expected of ["At Risk", "50%", "To Do", "Book the sound system", "Design the poster", "Final run-through", "https://studentdesk.test/projects/p1"]) {
       expect(body).toContain(expected);
     }
+  });
+});
+
+describe("readinessEmail wording", () => {
+  const report = {
+    ...base,
+    readiness: { status: "BEHIND" as const, completion: 17, expected: 65, overdueTasks: 1, reasons: ["1 overdue milestone"] },
+    byStatus: { BACKLOG: 1, TODO: 2, IN_PROGRESS: 2, REVIEW: 0, DONE: 1 },
+    overdue: [],
+    inReview: [],
+    overdueMilestones: [{ title: "Team registration closed", dueDate: new Date("2026-11-05T15:59:59.999Z") }],
+    upcomingMilestones: [{ title: "Opening ceremony", dueDate: deadline }],
+  };
+
+  it("lists an overdue milestone under its own heading, not under the next 14 days", () => {
+    const { body } = readinessEmail(report);
+    const overdueAt = body.indexOf("Overdue milestones");
+    const upcomingAt = body.indexOf("Milestones in the next 14 days");
+    const milestoneAt = body.indexOf("Team registration closed");
+    expect(overdueAt).toBeGreaterThan(-1);
+    expect(milestoneAt).toBeGreaterThan(overdueAt);
+    expect(milestoneAt).toBeLessThan(upcomingAt);
+    expect(body.indexOf("Opening ceremony")).toBeGreaterThan(upcomingAt);
+  });
+
+  it("leaves out the overdue milestones heading when there are none", () => {
+    expect(readinessEmail({ ...report, overdueMilestones: [] }).body).not.toContain("Overdue milestones");
+  });
+
+  it("says in plain words that a project has no tasks yet", () => {
+    const { subject } = readinessEmail({ ...report, readiness: { status: "NO_TASKS", completion: 0, expected: 0, overdueTasks: 0, reasons: [] } });
+    expect(subject).toBe("Readiness report: Foundation Day has no tasks yet");
   });
 });
