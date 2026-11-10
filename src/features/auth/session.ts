@@ -1,15 +1,19 @@
 import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
+import { cache } from "react";
 import { authOptions } from "@/features/auth/options";
 import { can, type ProjectAction } from "@/lib/permissions";
 import { prisma } from "@/lib/db";
 
 export type SessionUser = { id: string; name: string; email: string };
 
-export async function getSessionUser(): Promise<SessionUser | null> {
+// A session can outlive its account, such as after the sample data is reset. The person is then treated
+// as signed out, instead of seeing empty pages and getting an error on every change.
+export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   const session = await getServerSession(authOptions);
-  return session?.user ?? null;
-}
+  if (!session?.user?.id) return null;
+  return prisma.user.findUnique({ where: { id: session.user.id }, select: { id: true, name: true, email: true } });
+});
 
 export async function requireUser(): Promise<SessionUser> {
   const user = await getSessionUser();
