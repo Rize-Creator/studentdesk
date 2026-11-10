@@ -3,7 +3,7 @@
 import { authorize } from "@/features/auth/session";
 import { fail, ok, type ActionResult } from "@/lib/action-result";
 import { prisma } from "@/lib/db";
-import { sendPending } from "./mailer";
+import { sendPending, sendWaitingAfterResponse } from "./mailer";
 import { queueNotifications } from "./queue";
 import { draftReadinessReports } from "./reports";
 
@@ -20,8 +20,10 @@ export async function sendReadinessNow(projectId: string): Promise<ActionResult<
   });
   if (recent) return fail("A report was sent in the last 5 minutes. Please wait a bit and try again.");
 
-  await queueNotifications(prisma, await draftReadinessReports(projectId, `now-${now.getTime()}`, now));
-  // Also sends anything still waiting.
-  const result = await sendPending();
+  const ids = await queueNotifications(prisma, await draftReadinessReports(projectId, `now-${now.getTime()}`, now));
+  // The message is about this report only. An older email that keeps failing should not make the report look failed.
+  const result = await sendPending({ ids });
+  // Anything else still waiting goes out after the response.
+  sendWaitingAfterResponse();
   return result.failed > 0 ? fail("Some emails couldn't be sent. They'll be retried tomorrow morning.") : ok({ sent: result.sent });
 }

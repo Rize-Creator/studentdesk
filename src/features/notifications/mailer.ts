@@ -78,3 +78,14 @@ export function sendAfterResponse(ids: string[]) {
     }
   });
 }
+
+// Sends everything still waiting, after the response is finished.
+export function sendWaitingAfterResponse() {
+  after(async () => {
+    try {
+      await sendPending();
+    } catch (error) {
+      console.error("Could not send the waiting emails", error);
+    }
+  });
+}
