@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deliverableSchema, normalizeLink, projectSchema, sendBackSchema, taskSchema } from "./schemas";
+import { deliverableSchema, milestoneSchema, normalizeLink, projectSchema, sendBackSchema, taskSchema } from "./schemas";
 
 describe("normalizeLink", () => {
   it("keeps a full link", () => {
@@ -65,5 +65,43 @@ describe("taskSchema", () => {
 describe("sendBackSchema", () => {
   it("requires a note", () => {
     expect(sendBackSchema.safeParse({ note: "  " }).success).toBe(false);
+  });
+});
+
+describe("dates", () => {
+  const project = { name: "Foundation Day", type: "EVENT", startDate: "2026-11-01", targetDate: "2026-12-01" };
+  const task = { title: "Book the hall", categoryId: "category-logistics", priority: "MEDIUM", deadline: "2026-11-20" };
+  const messages = (result: { error?: { issues: { message: string }[] } }) => result.error?.issues.map((issue) => issue.message) ?? [];
+
+  it("refuses a mistyped year, which used to break the project's pages", () => {
+    const result = projectSchema.safeParse({ ...project, startDate: "0202-11-05" });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].path).toEqual(["startDate"]);
+    expect(messages(result)).toContain("Use a year from 2000 to 2100.");
+  });
+
+  it("refuses years too far ahead as well", () => {
+    expect(projectSchema.safeParse({ ...project, targetDate: "2206-12-01" }).success).toBe(false);
+    expect(projectSchema.safeParse({ ...project, startDate: "1999-12-31" }).success).toBe(false);
+  });
+
+  it("accepts the first and last years allowed", () => {
+    expect(projectSchema.safeParse({ ...project, startDate: "2000-01-01", targetDate: "2100-12-31" }).success).toBe(true);
+  });
+
+  it("refuses a date that isn't on the calendar", () => {
+    expect(messages(taskSchema.safeParse({ ...task, deadline: "2026-02-31" }))).toContain("Choose a real date.");
+    expect(taskSchema.safeParse({ ...task, deadline: "2026-13-01" }).success).toBe(false);
+  });
+
+  it("accepts February 29 only in a leap year", () => {
+    expect(taskSchema.safeParse({ ...task, deadline: "2028-02-29" }).success).toBe(true);
+    expect(taskSchema.safeParse({ ...task, deadline: "2027-02-29" }).success).toBe(false);
+  });
+
+  it("checks task deadlines and milestone due dates the same way", () => {
+    expect(taskSchema.safeParse({ ...task, deadline: "0202-11-05" }).success).toBe(false);
+    expect(milestoneSchema.safeParse({ title: "Budget approved", dueDate: "0202-11-05" }).success).toBe(false);
+    expect(milestoneSchema.safeParse({ title: "Budget approved", dueDate: "2026-11-05" }).success).toBe(true);
   });
 });

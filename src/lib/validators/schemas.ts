@@ -1,6 +1,22 @@
 import { z } from "zod";
 
-const dateKey = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a date.");
+const MIN_YEAR = 2000;
+const MAX_YEAR = 2100;
+
+function isRealDate(value: string): boolean {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+// A mistyped year such as 0202 used to be saved. It then broke the project's dashboard, its members' Home page
+// and the daily emails for every project, because the date maths can't handle a three-digit year.
+const dateKey = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a date.")
+  .refine(isRealDate, { message: "Choose a real date." })
+  .refine((value) => Number(value.slice(0, 4)) >= MIN_YEAR && Number(value.slice(0, 4)) <= MAX_YEAR, {
+    message: `Use a year from ${MIN_YEAR} to ${MAX_YEAR}.`,
+  });
 const title = z.string().trim().min(3, "Use at least 3 characters.").max(120, "Use 120 characters or fewer.");
 const description = z.string().trim().max(2000, "Use 2,000 characters or fewer.").default("");
 const optionalId = z
