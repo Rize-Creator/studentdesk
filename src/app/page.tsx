@@ -115,7 +115,7 @@ export default async function GuestHomePage() {
             <ol className="mt-5 divide-y divide-border">
               {SUGGESTIONS.map((person, index) => (
                 <li key={person.name} className="flex gap-4 py-3">
-                  <span className="w-12 shrink-0 font-heading text-2xl font-bold tabular-nums">{person.match}%</span>
+                  <span className="w-16 shrink-0 whitespace-nowrap font-heading text-2xl font-bold tabular-nums">{person.match}%</span>
                   <div className="min-w-0">
                     <p className="font-bold">{person.name}</p>
                     <p className="text-sm">
