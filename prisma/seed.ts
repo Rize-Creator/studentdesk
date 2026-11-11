@@ -140,9 +140,21 @@ function addTask(input: { projectId: string; leadId: string; title: string; cate
     position, assigneeId: input.assigneeId, milestoneId: input.milestoneId, deadline: endOfManilaDay(day(input.deadlineOffset)),
     completedAt, createdById: input.leadId, createdAt,
   });
-  history.push({ id: randomUUID(), taskId: id, fromStatus: null, toStatus: "TODO", changedById: input.leadId, changedAt: createdAt });
-  if (input.status !== "TODO" && input.status !== "BACKLOG") {
-    history.push({ id: randomUUID(), taskId: id, fromStatus: "TODO", toStatus: input.status, changedById: input.assigneeId ?? input.leadId, changedAt: completedAt ?? midMorning(-1) });
+  // The history follows the same rules as the board: the assignee works the task up to Review, and a lead marks it Done.
+  const HOUR_MS = 60 * 60 * 1000;
+  const worker = input.assigneeId ?? input.leadId;
+  const move = (fromStatus: Status | null, toStatus: Status, changedById: string, changedAt: Date) =>
+    history.push({ id: randomUUID(), taskId: id, fromStatus, toStatus, changedById, changedAt });
+  move(null, input.status === "BACKLOG" ? "BACKLOG" : "TODO", input.leadId, createdAt);
+  if (input.status === "IN_PROGRESS") {
+    move("TODO", "IN_PROGRESS", worker, midMorning(-1));
+  } else if (input.status === "REVIEW") {
+    move("TODO", "IN_PROGRESS", worker, new Date(createdAt.getTime() + 24 * HOUR_MS));
+    move("IN_PROGRESS", "REVIEW", worker, new Date(midMorning(-1).getTime() + HOUR_MS));
+  } else if (completedAt) {
+    move("TODO", "IN_PROGRESS", worker, new Date(createdAt.getTime() + 24 * HOUR_MS));
+    move("IN_PROGRESS", "REVIEW", worker, new Date(completedAt.getTime() - HOUR_MS));
+    move("REVIEW", "DONE", input.leadId, completedAt);
   }
   if (input.assigneeId) {
     assignments.push({ id: randomUUID(), taskId: id, assigneeId: input.assigneeId, assignedById: input.leadId, assignedAt: createdAt });
@@ -158,6 +170,9 @@ function addTeam(projectId: string, team: Seat[]) {
 async function main() {
   assertSeedAllowed(process.env);
   console.log(`Resetting sample data on ${new URL(process.env.DATABASE_URL!).hostname}`);
+  // A short pause, so a reset aimed at the wrong database can still be stopped.
+  console.log("Starting in 5 seconds. Press Ctrl+C now if that isn't the database you meant.");
+  await new Promise((resolve) => setTimeout(resolve, 5000));
 
   await prisma.notification.deleteMany();
   await prisma.project.deleteMany(); // Cascades to members, milestones, tasks, history and assignments.
